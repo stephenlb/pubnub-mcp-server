@@ -1,6 +1,7 @@
  # PubNub Model Context Protocol (MCP) Server for Cursor IDE
 
- This repository provides a CLI-based Model Context Protocol (MCP) server that exposes PubNub SDK documentation and PubNub Functions resources to LLM-powered tools. By adding this server to Cursor IDE, you can:
+ This repository provides a CLI-based Model Context Protocol (MCP) server that exposes PubNub SDK documentation and PubNub Functions resources to LLM-powered tools.
+ By adding this server to Cursor IDE, you can:
  - Fetch formatted PubNub JavaScript, Python, and Java SDK documentation.
  - Access PubNub Functions documentation from a static Markdown file.
 
@@ -10,26 +11,21 @@
  - Cursor IDE with MCP support
  - (Optional) PubNub account and API keys for live examples
 
- ## Installation
+## Installation
 
- ```bash
- # Clone the repository
- git clone https://github.com/your-org/pubnub-mcp-server.git
- cd pubnub-mcp-server
+The preferred way to run the PubNub MCP server locally or add it to Cursor IDE is via npx:
 
- # Install dependencies
- npm install
+```bash
+npx -y @pubnub/mcp
+```
 
- # Ensure the server is executable
- chmod +x server.js
-
- # Or run directly via npx (no clone required)
- npx -y @pubnub/mcp
- ```
+This requires Node.js (>= 14) and npm (https://nodejs.org/).
+`npx` will automatically fetch and run the latest MCP server.
 
  ## Configuration
 
- Cursor IDE discovers MCP servers via a JSON config file. Configure the PubNub MCP server globally or per project.
+ Cursor IDE discovers MCP servers via a JSON config file.
+ Configure the PubNub MCP server globally or per project.
 
  ### Global Configuration
 
