@@ -22,6 +22,9 @@
 
  # Ensure the server is executable
  chmod +x server.js
+
+ # Or run directly via npx (no clone required)
+ npx -y @pubnub/mcp
  ```
 
  ## Configuration
@@ -36,7 +39,7 @@
  {
    "mcpServers": {
      "pubnub": {
-       "cmd": "node /full/path/to/server.js",
+       "cmd": "npx -y @pubnub/mcp",
        "env": {
          "PUBNUB_SUBSCRIBE_KEY": "YOUR_SUBSCRIBE_KEY",
          "PUBNUB_PUBLISH_KEY": "YOUR_PUBLISH_KEY"
@@ -54,7 +57,7 @@
  {
    "mcpServers": {
      "pubnub": {
-       "cmd": "node ./server.js",
+       "cmd": "npx -y @pubnub/mcp",
        "env": {
          "PUBNUB_SUBSCRIBE_KEY": "YOUR_SUBSCRIBE_KEY",
          "PUBNUB_PUBLISH_KEY": "YOUR_PUBLISH_KEY"
