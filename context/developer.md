@@ -1,5 +1,5 @@
 1. Write a PubNub MCP server using stdio.
-2. Only output javascript code.
+2. Only output javascript code as ES module.
 3. Add MCP tool to Fetch PubNub SDK documentation from the following URLs:
 https://www.pubnub.com/docs/sdks/javascript
 https://www.pubnub.com/docs/sdks/python

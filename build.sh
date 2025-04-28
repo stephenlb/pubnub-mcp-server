@@ -60,7 +60,8 @@ jq_input_array+="]"
 
 time jq -n \
   "${rawfile_args[@]}" \
-  '{ model: "o1-pro-2025-03-19", input: '"$jq_input_array"', text: { format: { type: "text" } }, reasoning: { effort: "medium" }, tools: [], store: true }' | curl -Ls https://api.openai.com/v1/responses \
+  '{ model: "o1-pro-2025-03-19", input: '"$jq_input_array"', text: { format: { type: "text" } }, reasoning: { effort: "medium" }, tools: [], store: true }' \
+| curl -Ls https://api.openai.com/v1/responses \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -d @- \
