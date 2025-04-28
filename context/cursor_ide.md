@@ -78,13 +78,18 @@ Cursor recognizes MCP servers by reading a JSON config in one of two possible lo
 
 Below is an example `.cursor/mcp.json` describing a CLI-based MCP server.
 
+This example demonstrated an MCP server using the stdio format
+Cursor automatically runs this process for you
+This uses a Node.js server, ran with `npx`
+
 ```json
 {
   "mcpServers": {
-    "hello-server": {
-      "cmd": "node /path/to/helloServer.js",
+    "server-name": {
+      "command": "npx",
+      "args": ["-y", "@pubnub/mcp"],
       "env": {
-        "API_KEY": "YOUR_API_KEY_VALUE"
+        "API_KEY": "value"
       }
     }
   }
@@ -128,5 +133,3 @@ If you trust a tool and want Cursor to invoke it without prompting for approval:
 2. **Add** its details to either `.cursor/mcp.json` (for project-level usage) or `~/.cursor/mcp.json` (for global usage).  
 3. **Restart** Cursor or open a new session. The server’s tools should appear in the MCP settings page under **Available Tools**.  
 4. **Invoke** the tools in chat by name or description, or let Cursor use them automatically when relevant.
-
-You’re now ready to extend Cursor’s capabilities with your own MCP servers!

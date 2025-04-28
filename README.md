@@ -35,7 +35,8 @@ This requires Node.js (>= 14) and npm (https://nodejs.org/).
  {
    "mcpServers": {
      "pubnub": {
-       "cmd": "npx -y @pubnub/mcp",
+       "command": "npx",
+       "args": ["-y", "@pubnub/mcp"],
        "env": {
          "PUBNUB_SUBSCRIBE_KEY": "YOUR_SUBSCRIBE_KEY",
          "PUBNUB_PUBLISH_KEY": "YOUR_PUBLISH_KEY"
@@ -53,7 +54,8 @@ This requires Node.js (>= 14) and npm (https://nodejs.org/).
  {
    "mcpServers": {
      "pubnub": {
-       "cmd": "npx -y @pubnub/mcp",
+       "command": "npx",
+       "args": ["-y", "@pubnub/mcp"],
        "env": {
          "PUBNUB_SUBSCRIBE_KEY": "YOUR_SUBSCRIBE_KEY",
          "PUBNUB_PUBLISH_KEY": "YOUR_PUBLISH_KEY"
@@ -63,7 +65,8 @@ This requires Node.js (>= 14) and npm (https://nodejs.org/).
  }
  ```
 
- - `cmd` specifies the command to launch the MCP server.
+ - `command` specifies the executable to launch the MCP server.
+ - `args` specifies the arguments to pass to the command.
  - `env` sets environment variables for the server process.
 
  ## Using in Cursor IDE
@@ -87,7 +90,7 @@ This requires Node.js (>= 14) and npm (https://nodejs.org/).
 
  - Verify Node.js and npm installation.
  - Ensure `server.js` has execute permission.
- - Check that the `cmd` path and environment variables are correct.
+ - Check that the `command`, `args`, and `env` settings are correct.
  - Review Cursor IDE logs for MCP startup errors.
 
  ## License
