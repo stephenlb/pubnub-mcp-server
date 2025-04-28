@@ -65,7 +65,7 @@ time jq -n \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -d @- \
 | jq -r '.output[] | select(.type == "message") | .content[] | select(.type == "output_text").text' \
-> dist/server.js
+> index.js
 
 echo
 echo "Build complete 🎉 "
