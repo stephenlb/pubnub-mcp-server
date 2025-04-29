@@ -41,11 +41,11 @@ async function main() {
     console.log("Resource contents:", resource);
   }
 
-  // Call the fetch-pubnub-docs tool for JavaScript SDK
-  console.log("Calling tool 'fetch-pubnub-docs'...");
+  // Call the fetchPubNubDocs tool for JavaScript SDK
+  console.log("Calling tool 'fetchPubNubDocs'...");
   const result = await client.callTool({
-    name: "fetch-pubnub-docs",
-    arguments: { sdk: "javascript" }
+    name: "fetchPubNubDocs",
+    arguments: { docType: "javascript" }
   });
   if (result.content && result.content.length > 0) {
     const preview = result.content[0].text;
