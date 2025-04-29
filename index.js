@@ -1,91 +1,105 @@
 #!/usr/bin/env node
-
-"use strict";
+/* eslint-disable no-console */
 
 import fs from "fs";
+import fetch from "node-fetch";
 import TurndownService from "turndown";
+import { z } from "zod";
+import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
-// Immediately advertise available tools and resources
-console.log(JSON.stringify({
-  type: "tool_list",
-  tools: [
-    {
-      name: "fetch_pubnub_docs",
-      description: "Fetches PubNub SDK docs (JavaScript, Python, Java) and returns them as Markdown",
-      run: {
-        input: [
-          { name: "sdk", type: "string", required: true, description: "One of: javascript, python, java" }
-        ]
-      }
-    }
-  ]
-}));
+/**
+ * A PubNub MCP server using stdio transport.
+ * 
+ * - Fetches PubNub SDK documentation from official URLs and converts HTML -> Markdown with turndown.
+ * - Exposes a static file (pubnub_functions.md) as a resource for "PubNub Functions" reference.
+ */
 
-console.log(JSON.stringify({
-  type: "resource_list",
-  resources: [
-    {
-      name: "pubnub_functions",
-      description: "Static content about PubNub Functions from local file"
-    }
-  ]
-}));
+// Prepare turndown for HTML->Markdown
+const turndownService = new TurndownService();
 
-// Listen for requests on stdin
-process.stdin.on("data", async (data) => {
-  let parsed;
-  try {
-    parsed = JSON.parse(data.toString());
-  } catch (err) {
-    console.error("Invalid JSON input:", err);
-    return;
-  }
+// Map doc choices to actual URLs
+const docUrls = {
+  javascript: "https://www.pubnub.com/docs/sdks/javascript",
+  python: "https://www.pubnub.com/docs/sdks/python",
+  java: "https://www.pubnub.com/docs/sdks/java"
+};
 
-  // Handle tool invocation
-  if (parsed.tool === "fetch_pubnub_docs") {
-    let sdk = parsed.args && parsed.args.sdk ? parsed.args.sdk : "javascript";
-    let url = null;
-    switch (sdk.toLowerCase()) {
-      case "python":
-        url = "https://www.pubnub.com/docs/sdks/python";
-        break;
-      case "java":
-        url = "https://www.pubnub.com/docs/sdks/java";
-        break;
-      default:
-        url = "https://www.pubnub.com/docs/sdks/javascript";
-        break;
+// Create an MCP server
+const server = new McpServer({
+  name: "PubNub-MCP-Server",
+  version: "1.0.0"
+});
+
+/**
+ * Resource: PubNub Functions (static local file).
+ * 
+ * For demonstration, we read from a markdown file found at "resources/pubnub_functions.md"
+ */
+const pubnubFunctionsContent = fs.readFileSync("resources/pubnub_functions.md", "utf8");
+server.resource(
+  "pubnub-functions",
+  new ResourceTemplate("pubnub://functions", { list: undefined }),
+  async (uri) => ({
+    contents: [{
+      uri: uri.href,
+      text: pubnubFunctionsContent
+    }]
+  })
+);
+
+/**
+ * Tool: Fetch PubNub Documentation
+ * 
+ * Input: { sdk: "javascript" | "python" | "java" }
+ *  - We'll fetch the HTML from official docs, convert to Markdown, and return.
+ */
+server.tool(
+  "fetch-pubnub-docs",
+  { sdk: z.enum(["javascript", "python", "java"]) },
+  async ({ sdk }) => {
+    const url = docUrls[sdk];
+    if (!url) {
+      return {
+        content: [
+          { type: "text", text: `Invalid SDK type provided: ${sdk}.` }
+        ],
+        isError: true
+      };
     }
 
     try {
       const response = await fetch(url);
+      if (!response.ok) {
+        return {
+          content: [
+            { type: "text", text: `Error fetching PubNub docs from: ${url}` }
+          ],
+          isError: true
+        };
+      }
       const html = await response.text();
-      const turndownService = new TurndownService();
       const markdown = turndownService.turndown(html);
 
-      console.log(JSON.stringify({
-        content: `Fetched and converted PubNub ${sdk} Docs:\n\n${markdown}`
-      }));
+      return {
+        content: [
+          { type: "text", text: markdown }
+        ]
+      };
     } catch (error) {
-      console.log(JSON.stringify({
-        content: `Error fetching docs: ${error.message}`,
+      return {
+        content: [
+          { type: "text", text: `Failed to fetch PubNub docs. Error: ${error}` }
+        ],
         isError: true
-      }));
+      };
     }
   }
+);
 
-  // Handle resource request
-  if (parsed.resource === "pubnub_functions") {
-    try {
-      const content = fs.readFileSync("resources/pubnub_functions.md", "utf8");
-      console.log(JSON.stringify({
-        content: content
-      }));
-    } catch (error) {
-      console.log(JSON.stringify({
-        content: `Error reading resource file: ${error.message}`,
-        isError: true
-      }));
-    }
-  }
+// Start the MCP server over stdio:
+const transport = new StdioServerTransport();
+server.connect(transport).catch((err) => {
+  console.error("Failed to start PubNub MCP server:", err);
+  process.exit(1);
 });

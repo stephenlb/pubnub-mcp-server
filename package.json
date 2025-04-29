@@ -1,6 +1,6 @@
 {
   "name": "@pubnub/mcp",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "type": "module",
   "description": "PubNub Model Context Protocol MCP Server for Cursor and Claude",
   "main": "index.js",
@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/stephenlb/pubnub-mcp-server#readme",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.2",
     "turndown": "^7.2.0"
   }
 }
