@@ -45,6 +45,10 @@ for file in "$context_dir"/*.md; do
   input_entries+=( '{ role: "user", content: [ { type: "input_text", text: $'"$name"' } ] }' )
 done
 
+# Include test.js as a user text content input
+rawfile_args+=(--rawfile test_js test.js)
+input_entries+=( '{ role: "user", content: [ { type: "input_text", text: $test_js } ] }' )
+
 # Build the input array for JQ
 jq_input_array="["
 first=true
@@ -71,13 +75,6 @@ time jq -n \
 echo
 echo "Build complete 🎉 "
 echo
-
-
-echo
-echo "Preparing test.js... "
-echo
-
-codex --full-auto "fix the test.js to use the newly updated index.js"
 
 echo
 echo "Running test.js... "

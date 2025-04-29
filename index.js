@@ -1,118 +1,224 @@
 #!/usr/bin/env node
+import dotenv from 'dotenv';
+dotenv.config();
 
-import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { z } from "zod";
-import fetch from "node-fetch";
-import TurndownService from "turndown";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
+import { fileURLToPath } from 'url';
+import { dirname, join as pathJoin } from 'path';
+import fs from 'fs';
+import PubNub from 'pubnub';
+import TurndownService from 'turndown';
+import { JSDOM } from 'jsdom';
 
-// Needed in ES modules to emulate __dirname
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { z } from 'zod';
+
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = dirname(__filename);
 
-// Create MCP server
-const server = new McpServer({
-  name: "pubnub_mcp_server",
-  version: "1.0.0"
+// Create and configure PubNub instance with userId = 'pubnub_mcp'
+const pubnub = new PubNub({
+  publishKey: process.env.PUBNUB_PUBLISH_KEY || '',
+  subscribeKey: process.env.PUBNUB_SUBSCRIBE_KEY || '',
+  userId: 'pubnub_mcp',
 });
 
-// ------------------------------------------------------------------
-// Tool: fetch_pubnub_docs
-// Fetches PubNub SDK docs from the specified URLs,
-// removes <script>/<style> tags, and converts HTML to Markdown.
-// ------------------------------------------------------------------
-server.tool(
-  "fetch_pubnub_docs",
-  {},
-  async () => {
-    const urls = [
-      { name: "JavaScript SDK", url: "https://www.pubnub.com/docs/sdks/javascript" },
-      { name: "Python SDK", url: "https://www.pubnub.com/docs/sdks/python" },
-      { name: "Java SDK", url: "https://www.pubnub.com/docs/sdks/java" }
-    ];
+// MCP server setup
+const server = new McpServer({
+  name: 'pubnub_mcp_server',
+  version: '1.0.0',
+});
 
-    const turndown = new TurndownService();
-    let combinedMarkdown = "";
-
-    for (const { name, url } of urls) {
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          combinedMarkdown += `\n\n## ${name}\n\nError fetching: ${response.status}\n`;
-          continue;
-        }
-        let html = await response.text();
-
-        // Remove <script> and <style> tags
-        html = html
-          .replace(/<script[^>]*>([\S\s]*?)<\/script>/gi, "")
-          .replace(/<style[^>]*>([\S\s]*?)<\/style>/gi, "");
-
-        const markdown = turndown.turndown(html);
-        combinedMarkdown += `\n\n## ${name}\n\n${markdown}\n`;
-      } catch (error) {
-        combinedMarkdown += `\n\n## ${name}\n\nError: ${error.message}\n`;
-      }
-    }
-
-    return {
-      content: [{
-        type: "text",
-        text: combinedMarkdown.trim()
-      }]
-    };
-  }
-);
-
-// ------------------------------------------------------------------
-// Resource: pubnub_functions
-// Loads static PubNub Functions content from a local file.
-// ------------------------------------------------------------------
+// 1) Resource: "thank_you_pubnub" (says thank you for using PubNub ❤️)
 server.resource(
-  "pubnub_functions",
-  "resource://pubnub_functions",
-  async (uri) => {
-    const filePath = path.join(__dirname, "resources", "pubnub_functions.md");
-    const text = fs.readFileSync(filePath, "utf8");
-    return {
-      contents: [
-        {
-          uri: uri.href,
-          text
-        }
-      ]
-    };
-  }
+  'thank_you_pubnub',
+  'thank_you_pubnub://thank_you',
+  async (uri) => ({
+    contents: [
+      {
+        uri: uri.href,
+        text: 'Thank you for using PubNub ❤️',
+      },
+    ],
+  })
 );
 
-// ------------------------------------------------------------------
-// Prompt: say_hello
-// Simple prompt that greets the user by name.
-// ------------------------------------------------------------------
+// 2) Prompt: "say_hello" (says hello to user)
 server.prompt(
-  "say_hello",
-  { name: z.string().optional() },
-  async ({ name }) => {
-    const userName = name || "friend";
-    return {
-      messages: [
-        {
-          role: "system",
-          content: {
-            type: "text",
-            text: `Hello, ${userName}! How can I help you today?`
-          }
-        }
-      ]
-    };
+  'say_hello',
+  {
+    name: z.string().default('User'),
+  },
+  ({ name }) => ({
+    messages: [
+      {
+        role: 'user',
+        content: {
+          type: 'text',
+          text: `Hello, ${name}!`,
+        },
+      },
+    ],
+  })
+);
+
+// 3) Tool: "pubnub_functions_docs" (loads pubnub_functions.md from resources)
+server.tool(
+  'pubnub_functions_docs',
+  {}, // no input needed
+  async () => {
+    try {
+      const filePath = pathJoin(__dirname, 'resources', 'pubnub_functions.md');
+      let content = fs.readFileSync(filePath, 'utf8');
+
+      // Remove any <script> or <style> tags if present (though it's Markdown)
+      const dom = new JSDOM(content);
+      const scripts = dom.window.document.querySelectorAll('script');
+      scripts.forEach((s) => s.remove());
+      const styles = dom.window.document.querySelectorAll('style');
+      styles.forEach((s) => s.remove());
+      content = dom.window.document.body.innerHTML;
+
+      // Replace "myPublishKey" and "mySubscribeKey" with "PUBNUB_PUBLISH_KEY" / "PUBNUB_SUBSCRIBE_KEY"
+      content = content.replace(/myPublishKey/g, 'PUBNUB_PUBLISH_KEY');
+      content = content.replace(/mySubscribeKey/g, 'PUBNUB_SUBSCRIBE_KEY');
+
+      // Convert to Markdown with turndown
+      const td = new TurndownService();
+      const markdown = td.turndown(content);
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: markdown,
+          },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error reading pubnub_functions_docs: ${err}`,
+          },
+        ],
+        isError: true,
+      };
+    }
   }
 );
 
-// ------------------------------------------------------------------
-// Start listening on stdio
-// ------------------------------------------------------------------
+// 4) Tool: "fetch_pubnub_sdk_docs" (fetches and processes PubNub SDK docs for a given language)
+server.tool(
+  'fetch_pubnub_sdk_docs',
+  {
+    language: z.enum(['javascript', 'python', 'java']),
+  },
+  async ({ language }) => {
+    const allowedPaths = {
+      javascript: 'https://www.pubnub.com/docs/sdks/javascript',
+      python: 'https://www.pubnub.com/docs/sdks/python',
+      java: 'https://www.pubnub.com/docs/sdks/java',
+    };
+    const url = allowedPaths[language];
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching ${url}: ${response.status} ${response.statusText}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      let html = await response.text();
+
+      // Remove <script> and <style> tags
+      const dom = new JSDOM(html);
+      dom.window.document.querySelectorAll('script').forEach((el) => el.remove());
+      dom.window.document.querySelectorAll('style').forEach((el) => el.remove());
+
+      // Remove header/footer (attempt to remove typical <header> or <footer> tags)
+      dom.window.document.querySelectorAll('header').forEach((el) => el.remove());
+      dom.window.document.querySelectorAll('footer').forEach((el) => el.remove());
+
+      // Get the remaining HTML
+      html = dom.window.document.body.innerHTML;
+
+      // Replace publish/subscribe placeholders
+      html = html.replace(/myPublishKey/g, 'PUBNUB_PUBLISH_KEY');
+      html = html.replace(/mySubscribeKey/g, 'PUBNUB_SUBSCRIBE_KEY');
+
+      // Convert to Markdown
+      const td = new TurndownService();
+      const markdown = td.turndown(html);
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: markdown,
+          },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error processing PubNub SDK docs for '${language}': ${err}`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// 5) Tool: "publish_pubnub_message" (publishes a message to a PubNub channel)
+server.tool(
+  'publish_pubnub_message',
+  {
+    channel: z.string(),
+    message: z.string(),
+  },
+  async ({ channel, message }) => {
+    try {
+      const result = await pubnub.publish({
+        channel,
+        message,
+      });
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Message published successfully. Timetoken: ${result.timetoken}`,
+          },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error publishing message: ${err}`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Start the MCP server over stdio
 const transport = new StdioServerTransport();
-await server.connect(transport);
+server.connect(transport).catch((err) => {
+  console.error('Failed to start PubNub MCP server:', err);
+  process.exit(1);
+});
