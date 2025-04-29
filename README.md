@@ -131,6 +131,26 @@ echo '{"jsonrpc":"2.0","id":5,"method":"resources/read","params":
   | node index.js
 ```
 
+## Quick JSON-RPC Examples
+
+Below are simplified JSON-RPC v2.0 command-line examples using STDIN/STDOUT to fetch PubNub SDK documentation and publish messages.
+
+### 1) Fetch PubNub JavaScript SDK documentation
+```bash
+PUBNUB_SUBSCRIBE_KEY=YOUR_SUBSCRIBE_KEY \
+PUBNUB_PUBLISH_KEY=YOUR_PUBLISH_KEY \
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"fetch_pubnub_sdk_docs","arguments":{"language":"javascript"}}}' \
+  | node index.js
+```
+
+### 2) Publish a message to a PubNub channel
+```bash
+PUBNUB_SUBSCRIBE_KEY=YOUR_SUBSCRIBE_KEY \
+PUBNUB_PUBLISH_KEY=YOUR_PUBLISH_KEY \
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"publish_pubnub_message","arguments":{"channel":"my_channel","message":"Hello, PubNub MCP JSON-RPC!"}}}' \
+  | node index.js
+```
+
 ## License
 
 MIT
