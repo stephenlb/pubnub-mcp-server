@@ -1,12 +1,12 @@
 {
   "name": "@pubnub/mcp",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "type": "module",
   "description": "PubNub Model Context Protocol MCP Server for Cursor and Claude",
   "main": "index.js",
   "bin": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test.js"
   },
   "files": [
     "resources"
