@@ -10,3 +10,4 @@ https://www.pubnub.com/docs/sdks/java
 7. add PubNub Functions MCP resource from static file content found in resources/pubnub_functions.md
 8. use an absolute path in your code for the static file content resources/pubnub_functions.md path.join(__dirname, 'resources', 'pubnub_functions.md')
 9. add at least one prompt to the MCP server to say hello to the user.
+10. use underscores instead of hyphens in the MCP server for tool names, resources and prompts.

@@ -26,11 +26,13 @@ async function main() {
   console.log("Connected to MCP server.");
 
   // List available resources
-  const resources = await client.listResources();
+  const resourcesResponse = await client.listResources();
+  const resources = resourcesResponse.resources;
   console.log("Resources:", resources);
 
   // List available tools
-  const tools = await client.listTools();
+  const toolsResponse = await client.listTools();
+  const tools = toolsResponse.tools;
   console.log("Tools:", tools);
 
   // Read the first resource, if any
@@ -41,10 +43,10 @@ async function main() {
     console.log("Resource contents:", resource);
   }
 
-  // Call the fetch-pubnub-docs tool for JavaScript SDK
-  console.log("Calling tool 'fetch-pubnub-docs'...");
+  // Call the fetch_pubnub_docs tool for JavaScript SDK
+  console.log("Calling tool 'fetch_pubnub_docs'...");
   const result = await client.callTool({
-    name: "fetch-pubnub-docs",
+    name: "fetch_pubnub_docs",
     arguments: { doc: "javascript" }
   });
   if (result.content && result.content.length > 0) {

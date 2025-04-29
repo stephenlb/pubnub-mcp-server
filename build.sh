@@ -71,3 +71,16 @@ time jq -n \
 echo
 echo "Build complete 🎉 "
 echo
+
+
+echo
+echo "Preparing test.js... "
+echo
+
+codex --full-auto "fix the test.js to use the newly updated index.js"
+
+echo
+echo "Running test.js... "
+echo
+
+npm test

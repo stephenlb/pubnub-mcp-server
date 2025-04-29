@@ -1,112 +1,118 @@
 #!/usr/bin/env node
 
-import path from 'path';
-import fs from 'fs';
-import fetch from 'node-fetch';
-import TurndownService from 'turndown';
-import { z } from 'zod';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+import fetch from "node-fetch";
+import TurndownService from "turndown";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
 
-const turndownService = new TurndownService();
+// Needed in ES modules to emulate __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const DOC_URLS = {
-  javascript: 'https://www.pubnub.com/docs/sdks/javascript',
-  python: 'https://www.pubnub.com/docs/sdks/python',
-  java: 'https://www.pubnub.com/docs/sdks/java'
-};
-
+// Create MCP server
 const server = new McpServer({
-  name: 'PubNubMcpServer',
-  version: '1.0.0'
+  name: "pubnub_mcp_server",
+  version: "1.0.0"
 });
 
-/**
- * Tool: fetch-pubnub-docs
- * Fetches the PubNub documentation page for 'javascript', 'python', or 'java'
- * Removes <script> and <style> tags, then converts to Markdown using turndown
- */
+// ------------------------------------------------------------------
+// Tool: fetch_pubnub_docs
+// Fetches PubNub SDK docs from the specified URLs,
+// removes <script>/<style> tags, and converts HTML to Markdown.
+// ------------------------------------------------------------------
 server.tool(
-  'fetch-pubnub-docs',
-  {
-    doc: z.enum(['javascript', 'python', 'java'])
-  },
-  async ({ doc }) => {
-    try {
-      const url = DOC_URLS[doc];
-      const response = await fetch(url);
-      let html = await response.text();
+  "fetch_pubnub_docs",
+  {},
+  async () => {
+    const urls = [
+      { name: "JavaScript SDK", url: "https://www.pubnub.com/docs/sdks/javascript" },
+      { name: "Python SDK", url: "https://www.pubnub.com/docs/sdks/python" },
+      { name: "Java SDK", url: "https://www.pubnub.com/docs/sdks/java" }
+    ];
 
-      // Remove <script> and <style> tags
-      html = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
-      html = html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+    const turndown = new TurndownService();
+    let combinedMarkdown = "";
 
-      // Convert to Markdown
-      const markdown = turndownService.turndown(html);
+    for (const { name, url } of urls) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          combinedMarkdown += `\n\n## ${name}\n\nError fetching: ${response.status}\n`;
+          continue;
+        }
+        let html = await response.text();
 
-      return {
-        content: [
-          {
-            type: 'text',
-            text: markdown
-          }
-        ]
-      };
-    } catch (err) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `Error fetching docs: ${err}`
-          }
-        ],
-        isError: true
-      };
+        // Remove <script> and <style> tags
+        html = html
+          .replace(/<script[^>]*>([\S\s]*?)<\/script>/gi, "")
+          .replace(/<style[^>]*>([\S\s]*?)<\/style>/gi, "");
+
+        const markdown = turndown.turndown(html);
+        combinedMarkdown += `\n\n## ${name}\n\n${markdown}\n`;
+      } catch (error) {
+        combinedMarkdown += `\n\n## ${name}\n\nError: ${error.message}\n`;
+      }
     }
+
+    return {
+      content: [{
+        type: "text",
+        text: combinedMarkdown.trim()
+      }]
+    };
   }
 );
 
-/**
- * Resource: pubnub-functions
- * Loads PubNub Functions documentation from a static markdown file
- */
+// ------------------------------------------------------------------
+// Resource: pubnub_functions
+// Loads static PubNub Functions content from a local file.
+// ------------------------------------------------------------------
 server.resource(
-  'pubnub-functions',
-  new ResourceTemplate('pubnub-functions://{any}', { list: undefined }),
+  "pubnub_functions",
+  "resource://pubnub_functions",
   async (uri) => {
-    const filePath = path.join(__dirname, 'resources', 'pubnub_functions.md');
-    const contents = fs.readFileSync(filePath, 'utf8');
+    const filePath = path.join(__dirname, "resources", "pubnub_functions.md");
+    const text = fs.readFileSync(filePath, "utf8");
     return {
       contents: [
         {
           uri: uri.href,
-          text: contents
+          text
         }
       ]
     };
   }
 );
 
-/**
- * Prompt: greet-user
- * Example prompt that says hello to the user
- */
+// ------------------------------------------------------------------
+// Prompt: say_hello
+// Simple prompt that greets the user by name.
+// ------------------------------------------------------------------
 server.prompt(
-  'greet-user',
-  { name: z.string() },
-  ({ name }) => ({
-    messages: [
-      {
-        role: 'user',
-        content: {
-          type: 'text',
-          text: `Hello, ${name}! Welcome to the PubNub MCP server. How can I assist you today?`
+  "say_hello",
+  { name: z.string().optional() },
+  async ({ name }) => {
+    const userName = name || "friend";
+    return {
+      messages: [
+        {
+          role: "system",
+          content: {
+            type: "text",
+            text: `Hello, ${userName}! How can I help you today?`
+          }
         }
-      }
-    ]
-  })
+      ]
+    };
+  }
 );
 
+// ------------------------------------------------------------------
+// Start listening on stdio
+// ------------------------------------------------------------------
 const transport = new StdioServerTransport();
 await server.connect(transport);
