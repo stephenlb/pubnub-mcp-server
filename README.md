@@ -13,16 +13,18 @@ By adding this server to Cursor IDE, you can:
 
 ## Installation
 
-The preferred way to run the PubNub MCP server locally or add it to Cursor IDE is via npx:
+The preferred way to run the PubNub MCP server locally or add it to Cursor IDE via npx:
 
 ```bash
 npx -y @pubnub/mcp
 ```
 
-This requires Node.js (>= 14) and npm (https://nodejs.org/).
+This requires Node.js (>= 18) and npm (https://nodejs.org/).
 `npx` will automatically fetch and run the latest MCP server.
 
 ## Configuration
+
+> *Cursor must be in AGENT MODE to use MCP servers.*
 
 Cursor IDE discovers MCP servers via a JSON config file.
 Configure the PubNub MCP server globally or per project.
@@ -82,12 +84,46 @@ In your project directory, create `.cursor/mcp.json`:
 
 ## Example Prompts
 
+- "Publish a message to the `my_channel` channel with the message `Hello, PubNub!`."
 - "Show me the PubNub JavaScript SDK documentation for `subscribe()`."  
 - "List all available PubNub Functions."  
 - "Fetch the Python SDK docs for the `publish()` method."
 
+## Using Claud IDE
+
+1. In the **Tools** section, add a new tool named **pubnub**.
+2. Set the **Command** to `npx` and **Arguments** to `["-y", "@pubnub/mcp"]`.
+3. Add environment variables for your PubNub keys:
+   - `PUBNUB_SUBSCRIBE_KEY`
+   - `PUBNUB_PUBLISH_KEY`
+4. Save the configuration.
+
+Claude may use an old verson of node.
+You may need to set the command to the full path of your node installation.
+For example:
+
+```json
+{
+  "mcpServers": {
+    "pubnub": {
+      "command": "/Users/stephen/.nvm/versions/node/v22.14.0/bin/node",
+      "args": ["/Users/stephen/Projects/mcp-pubnub/index.js"],
+      "env": {
+        "PUBNUB_SUBSCRIBE_KEY": "demo",
+        "PUBNUB_PUBLISH_KEY": "demo"
+      }
+    }
+  }
+}
+```
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
 ## Troubleshooting
 
+- Must be in agents mode to use MCP servers.
 - Verify Node.js and npm installation.
 - Ensure `server.js` has execute permission.
 - Check that the `command`, `args`, and `env` settings are correct.
