@@ -89,7 +89,7 @@ In your project directory, create `.cursor/mcp.json`:
 - "List all available PubNub Functions."  
 - "Fetch the Python SDK docs for the `publish()` method."
 
-## Using Claud IDE
+## Using Claude Desktop
 
 1. In the **Tools** section, add a new tool named **pubnub**.
 2. Set the **Command** to `npx` and **Arguments** to `["-y", "@pubnub/mcp"]`.
@@ -98,9 +98,14 @@ In your project directory, create `.cursor/mcp.json`:
    - `PUBNUB_PUBLISH_KEY`
 4. Save the configuration.
 
-Claude may use an old verson of node.
+Claude Desktop may use an old verson of node.
 You may need to set the command to the full path of your node installation.
-For example:
+
+```shell
+git clone https://github.com/stephenlb/pubnub-mcp-server.git
+```
+
+MCP server is located in the `index.js` file.:
 
 ```json
 {
