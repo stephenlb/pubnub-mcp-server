@@ -18,8 +18,8 @@ const __dirname = dirname(__filename);
 
 // Create and configure PubNub instance with userId = 'pubnub_mcp'
 const pubnub = new PubNub({
-  publishKey: process.env.PUBNUB_PUBLISH_KEY || '',
-  subscribeKey: process.env.PUBNUB_SUBSCRIBE_KEY || '',
+  publishKey: process.env.PUBNUB_PUBLISH_KEY || 'demo',
+  subscribeKey: process.env.PUBNUB_SUBSCRIBE_KEY || 'demo',
   userId: 'pubnub_mcp',
 });
 
@@ -258,6 +258,50 @@ server.tool(
         content: [
           { type: 'text', text: `Error reading documentation: ${err.message || err}` },
         ],
+        isError: true,
+      };
+    }
+  }
+);
+// 7) Tool: "fetch_pubnub_messages" (fetch message history for PubNub channels)
+server.tool(
+  'fetch_pubnub_messages',
+  {
+    channels: z.array(z.string()).min(1).describe('Array of PubNub channels to fetch messages for'),
+  },
+  async ({ channels }) => {
+    try {
+      const result = await pubnub.fetchMessages({ channels });
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [ { type: 'text', text: `Error fetching messages: ${err}` } ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// 8) Tool: "fetch_pubnub_presence" (fetch presence information for PubNub channels and channel groups)
+server.tool(
+  'fetch_pubnub_presence',
+  {
+    channels: z.array(z.string()).default([]).describe('Array of PubNub channels for presence query'),
+    channelGroups: z.array(z.string()).default([]).describe('Array of PubNub channel groups for presence query'),
+  },
+  async ({ channels, channelGroups }) => {
+    try {
+      const result = await pubnub.hereNow({ channels, channelGroups });
+      return {
+        content: [ { type: 'text', text: JSON.stringify(result, null, 2) } ],
+      };
+    } catch (err) {
+      return {
+        content: [ { type: 'text', text: `Error fetching presence information: ${err}` } ],
         isError: true,
       };
     }

@@ -75,6 +75,28 @@ async function main() {
     );
   }
 
+  // Test tool: fetch_pubnub_messages (history API)
+  console.log("Calling tool: fetch_pubnub_messages (history API)");
+  const history = await client.callTool({
+    name: "fetch_pubnub_messages",
+    arguments: { channels: ["test"] },
+  });
+  console.log(
+    "fetch_pubnub_messages result:",
+    history.content ? JSON.stringify(history.content, null, 2) : history
+  );
+
+  // Test tool: fetch_pubnub_presence (hereNow API)
+  console.log("Calling tool: fetch_pubnub_presence (presence API)");
+  const presence = await client.callTool({
+    name: "fetch_pubnub_presence",
+    arguments: { channels: ["test"], channelGroups: [] },
+  });
+  console.log(
+    "fetch_pubnub_presence result:",
+    presence.content ? JSON.stringify(presence.content, null, 2) : presence
+  );
+
   // Close connection
   await client.close();
   console.log("Connection closed.");
