@@ -47,16 +47,16 @@ async function main() {
   });
   console.log("say_hello (Alice):", promptCustom.messages[0].content.text);
 
-  // Test tool: pubnub_functions_docs (static file)
-  console.log("Calling tool: pubnub_functions_docs");
-  const functionsDocs = await client.callTool({
-    name: "pubnub_functions_docs",
-    arguments: {},
+  // Test tool: pubnub_docs (static file)
+  console.log("Calling tool: pubnub_docs (functions)");
+  const pubnubDocs = await client.callTool({
+    name: "pubnub_docs",
+    arguments: { doc: "functions" },
   });
-  if (functionsDocs.content?.length) {
+  if (pubnubDocs.content?.length) {
     console.log(
-      "pubnub_functions_docs preview:",
-      functionsDocs.content[0].text.slice(0, 200),
+      "pubnub_docs (functions) preview:",
+      pubnubDocs.content[0].text.slice(0, 200),
       "..."
     );
   }

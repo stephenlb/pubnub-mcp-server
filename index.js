@@ -62,36 +62,43 @@ server.prompt(
   })
 );
 
-// 3) Tool: "pubnub_functions_docs" (loads pubnub_functions.md from resources)
+// 3) Tool: "pubnub_docs" (loads PubNub documentation from resources)
+const pubnubDocsOptions = [
+  'concepts',
+  'features',
+  'functions',
+  'integration',
+  'scale',
+  'security',
+  'troubleshooting',
+];
 server.tool(
-  'pubnub_functions_docs',
-  {}, // no input needed
-  async () => {
+  'pubnub_docs',
+  {
+    doc: z
+      .enum(pubnubDocsOptions)
+      .describe('Which PubNub documentation to fetch'),
+  },
+  async ({ doc }) => {
     try {
-      const filePath = pathJoin(__dirname, 'resources', 'pubnub_functions.md');
-      let content = fs.readFileSync(filePath, 'utf8');
-
-      // Remove any <script> or <style> tags if present (though it's Markdown)
-      const dom = new JSDOM(content);
-      const scripts = dom.window.document.querySelectorAll('script');
-      scripts.forEach((s) => s.remove());
-      const styles = dom.window.document.querySelectorAll('style');
-      styles.forEach((s) => s.remove());
-      content = dom.window.document.body.innerHTML;
-
-      // Replace "myPublishKey" and "mySubscribeKey" with "PUBNUB_PUBLISH_KEY" / "PUBNUB_SUBSCRIBE_KEY"
-      content = content.replace(/myPublishKey/g, 'PUBNUB_PUBLISH_KEY');
-      content = content.replace(/mySubscribeKey/g, 'PUBNUB_SUBSCRIBE_KEY');
-
-      // Convert to Markdown with turndown
-      const td = new TurndownService();
-      const markdown = td.turndown(content);
-
+      const filePath = pathJoin(__dirname, 'resources', `pubnub_${doc}.md`);
+      if (!fs.existsSync(filePath)) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Documentation file not found: pubnub_${doc}.md`,
+            },
+          ],
+          isError: true,
+        };
+      }
+      const content = fs.readFileSync(filePath, 'utf8');
       return {
         content: [
           {
             type: 'text',
-            text: markdown,
+            text: content,
           },
         ],
       };
@@ -100,7 +107,7 @@ server.tool(
         content: [
           {
             type: 'text',
-            text: `Error reading pubnub_functions_docs: ${err}`,
+            text: `Error reading pubnub_docs for '${doc}': ${err.message || err}`,
           },
         ],
         isError: true,
@@ -208,6 +215,48 @@ server.tool(
             type: 'text',
             text: `Error publishing message: ${err}`,
           },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// 6) Tool: "fetch_pubnub_docs" (fetch PubNub documentation from markdown files in ./resources/ directory)
+server.tool(
+  'fetch_pubnub_docs',
+  {
+    doc: z.string().describe('Name of PubNub documentation to fetch, e.g. "functions", "features", "security", etc.'),
+  },
+  async ({ doc }) => {
+    try {
+      let fileName = doc;
+      // Normalize filename
+      if (fileName.endsWith('.md')) {
+        fileName = fileName.slice(0, -3);
+      }
+      if (!fileName.startsWith('pubnub_')) {
+        fileName = `pubnub_${fileName}`;
+      }
+      const filePath = pathJoin(__dirname, 'resources', `${fileName}.md`);
+      if (!fs.existsSync(filePath)) {
+        return {
+          content: [
+            { type: 'text', text: `Documentation file not found: ${fileName}.md` },
+          ],
+          isError: true,
+        };
+      }
+      const content = fs.readFileSync(filePath, 'utf8');
+      return {
+        content: [
+          { type: 'text', text: content },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [
+          { type: 'text', text: `Error reading documentation: ${err.message || err}` },
         ],
         isError: true,
       };
