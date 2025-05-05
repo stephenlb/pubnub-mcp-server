@@ -110,19 +110,18 @@ server.tool(
 );
 
 // 4) Tool: "fetch_pubnub_sdk_docs" (fetches and processes PubNub SDK docs for a given language)
+const languages = [
+    'javascript', 'python', 'java', 'go', 'ruby',
+    'swift', 'objective-c', 'c-sharp', 'php',
+    'rust', 'unity', 'kotlin', 'unreal'
+];
 server.tool(
   'fetch_pubnub_sdk_docs',
   {
-    language: z.enum(['javascript', 'python', 'java']),
+    language: z.enum(languages),
   },
   async ({ language }) => {
-    const allowedPaths = {
-      javascript: 'https://www.pubnub.com/docs/sdks/javascript',
-      python: 'https://www.pubnub.com/docs/sdks/python',
-      java: 'https://www.pubnub.com/docs/sdks/java',
-    };
-    const url = allowedPaths[language];
-
+    const url = `https://www.pubnub.com/docs/sdks/${language}`;
     try {
       const response = await fetch(url);
       if (!response.ok) {
