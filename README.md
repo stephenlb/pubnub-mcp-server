@@ -5,9 +5,21 @@ By adding this server to Cursor IDE, you can:
 - Fetch formatted PubNub JavaScript, Python, and Java SDK documentation.
 - Access PubNub Functions documentation from a static Markdown file.
 
+## Example Prompts
+
+- "Publish a message to the `my_channel` channel with the message `Hello, PubNub!`."
+- "Show me the PubNub JavaScript SDK documentation for `subscribe()`."  
+- "List all available PubNub Functions."  
+- "Fetch the Python SDK docs for the `publish()` method."
+- "Fetch the message history for the `test` channel."  
+- "Retrieve presence information (occupancy and UUIDs) for the `test` channel and the `default` channel group."  
+
+This requires Node.js (>= 18) and npm (https://nodejs.org/).
+`npx` will automatically fetch and run the latest MCP server.
+
 ## Prerequisites
 
-- Node.js (>= 14) and npm
+- Node.js (>= 18) and npm
 - Cursor IDE with MCP support
 - (Optional) PubNub account and API keys for live examples
 
@@ -18,9 +30,6 @@ The preferred way to run the PubNub MCP server locally or add it to Cursor IDE v
 ```bash
 npx -y @pubnub/mcp
 ```
-
-This requires Node.js (>= 18) and npm (https://nodejs.org/).
-`npx` will automatically fetch and run the latest MCP server.
 
 ## Configuration
 
@@ -81,13 +90,6 @@ In your project directory, create `.cursor/mcp.json`:
    - `pubnub://docs/java` — Fetch PubNub Java SDK documentation
    - `pubnub://functions` — List PubNub Functions (static content from `resources/pubnub_functions.md`)
 4. Approve resource execution when prompted, or enable **auto-run** in settings for trusted resources.
-
-## Example Prompts
-
-- "Publish a message to the `my_channel` channel with the message `Hello, PubNub!`."
-- "Show me the PubNub JavaScript SDK documentation for `subscribe()`."  
-- "List all available PubNub Functions."  
-- "Fetch the Python SDK docs for the `publish()` method."
 
 ## Using Claude Desktop
 
