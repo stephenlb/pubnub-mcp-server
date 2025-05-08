@@ -101,6 +101,11 @@ claude mcp add pubnub -e PUBNUB_PUBLISH_KEY=your_publish_key -e PUBNUB_SUBSCRIBE
 claude mcp add pubnub -e PUBNUB_PUBLISH_KEY=your_publish_key -e PUBNUB_SUBSCRIBE_KEY=your_subscribe_key -- /Users/stephen/.nvm/versions/node/v22.14.0/bin/node /Users/stephen/Projects/mcp-pubnub/index.js
 ```
 
+And the output will be:
+```shell
+Added stdio MCP server pubnub with command: npx -y @pubnub/mcp to local config
+```
+
 ### Example prompt
 ```shell
 claude "publish a message 'hi' to the 'my_channel' pubnub channel."
@@ -127,18 +132,12 @@ claude "publish a message 'hi' to the 'my_channel' pubnub channel."
   ⎿  Message published successfully. Timetoken: 17467422499409217
 
 ⏺ Message published successfully to "my_channel".
-
 ```
 
 Remove the MCP server with:
 
 ```shell
 claude mcp remove pubnub
-```
-
-And the output will be:
-```shell
-Added stdio MCP server pubnub with command: npx -y @pubnub/mcp to local config
 ```
 
 ## Using Claude Desktop
