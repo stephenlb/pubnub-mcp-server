@@ -91,6 +91,56 @@ In your project directory, create `.cursor/mcp.json`:
    - `pubnub://functions` — List PubNub Functions (static content from `resources/pubnub_functions.md`)
 4. Approve resource execution when prompted, or enable **auto-run** in settings for trusted resources.
 
+## Claude Code
+
+```shell
+## Install the MCP server if you have node >= 18
+claude mcp add pubnub -e PUBNUB_PUBLISH_KEY=your_publish_key -e PUBNUB_SUBSCRIBE_KEY=your_subscribe_key -- npx -y @pubnub/mcp
+
+## Install the MCP server if you have node < 18 and need to point to the full path of node
+claude mcp add pubnub -e PUBNUB_PUBLISH_KEY=your_publish_key -e PUBNUB_SUBSCRIBE_KEY=your_subscribe_key -- /Users/stephen/.nvm/versions/node/v22.14.0/bin/node /Users/stephen/Projects/mcp-pubnub/index.js
+```
+
+### Example prompt
+```shell
+claude "publish a message 'hi' to the 'my_channel' pubnub channel."
+```
+
+```shell
+claude "publish a message 'hi' to the 'my_channel' pubnub channel."
+
+╭───────────────────────────────────────────────────╮
+│ ✻ Welcome to Claude Code research preview!        │
+│                                                   │
+│   /help for help, /status for your current setup  │
+│                                                   │
+│   cwd: /Users/stephen/Projects/mcp-pubnub         │
+╰───────────────────────────────────────────────────╯
+
+ ※ Tip: Press Option+Enter to send a multi-line message
+
+> publish a message 'hi' to the 'my_channel' pubnub channel.
+
+⏺ I'll publish a message to the PubNub channel for you.
+
+⏺ pubnub:publish_pubnub_message (MCP)(channel: "my_channel", message: "hi")…
+  ⎿  Message published successfully. Timetoken: 17467422499409217
+
+⏺ Message published successfully to "my_channel".
+
+```
+
+Remove the MCP server with:
+
+```shell
+claude mcp remove pubnub
+```
+
+And the output will be:
+```shell
+Added stdio MCP server pubnub with command: npx -y @pubnub/mcp to local config
+```
+
 ## Using Claude Desktop
 
 1. In the **Tools** section, add a new tool named **pubnub**.
