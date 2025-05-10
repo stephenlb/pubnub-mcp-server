@@ -5,6 +5,10 @@ By adding this server to Cursor IDE, you can:
 - Fetch formatted PubNub JavaScript, Python, and Java SDK documentation.
 - Access PubNub Functions documentation from a static Markdown file.
 
+<a href="https://glama.ai/mcp/servers/@stephenlb/pubnub-mcp-server">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@stephenlb/pubnub-mcp-server/badge" alt="PubNub Server MCP server" />
+</a>
+
 ## Example Prompts
 
 - "Publish a message to the `my_channel` channel with the message `Hello, PubNub!`."
