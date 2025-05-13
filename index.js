@@ -105,7 +105,7 @@ async function loadArticle(url) {
 }
 
 // Tool: "pubnub_resources" (fetch PubNub documentation from markdown files in ./resources/ directory)
-const pubnubDocsOptions = [
+const pubnubResouceOptions = [
   'concepts',
   'features',
   'functions',
@@ -115,20 +115,20 @@ const pubnubDocsOptions = [
   'troubleshooting',
 ];
 server.tool(
-  'pubnub_resources',
-  'Access local PubNub documentation stored as markdown files in the "resources" directory. Specify the documentation section to retrieve conceptual guides, feature overviews, integration instructions, scaling advice, security best practices, or troubleshooting tips.',
+  'read_pubnub_resources',
+  'Access PubNub documentation stored as markdown files in the "resources" directory. Specify the documentation section to retrieve conceptual guides, feature overviews, integration instructions, scaling advice, security best practices, or troubleshooting tips.',
   {
-    document: z.enum(pubnubDocsOptions).describe('Documentation section to fetch (concepts, features, functions, integration, scale, security, troubleshooting)'),
+    document: z.enum(pubnubResouceOptions).describe('Documentation section to fetch (concepts, features, functions, integration, scale, security, troubleshooting)'),
   },
   async ({ document }) => {
     try {
-      const filePath = pathJoin(__dirname, 'resources', `pubnub_${document}.md`);
+      const filePath = pathJoin(__dirname, 'resources', `${document}.md`);
       if (!fs.existsSync(filePath)) {
         return {
           content: [
             {
               type: 'text',
-              text: `Documentation file not found: pubnub_${document}.md`,
+              text: `Documentation file not found: ${document}.md`,
             },
           ],
           isError: true,
@@ -151,30 +151,6 @@ server.tool(
           text: `Error reading pubnub documentation for '${document}': ${err.message || err}`,
           },
         ],
-        isError: true,
-      };
-    }
-  }
-);
-
-// Tool: "get_pubnub_messages" (fetch message history for PubNub channels)
-server.tool(
-  'get_pubnub_messages',
-  'Retrieve historical messages from specified PubNub channels, including message content and metadata. Provide an array of channel names to receive past communication records.',
-  {
-    channels: z.array(z.string()).min(1).describe('List of one or more PubNub channel names (strings) to retrieve historical messages from'),
-  },
-  async ({ channels }) => {
-    try {
-      const result = await pubnub.fetchMessages({ channels });
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    } catch (err) {
-      return {
-        content: [ { type: 'text', text: `Error fetching messages: ${err}` } ],
         isError: true,
       };
     }
@@ -217,6 +193,29 @@ server.tool(
   }
 );
 
+// Tool: "get_pubnub_messages" (fetch message history for PubNub channels)
+server.tool(
+  'get_pubnub_messages',
+  'Retrieve historical messages from specified PubNub channels, including message content and metadata. Provide an array of channel names to receive past communication records.',
+  {
+    channels: z.array(z.string()).min(1).describe('List of one or more PubNub channel names (strings) to retrieve historical messages from'),
+  },
+  async ({ channels }) => {
+    try {
+      const result = await pubnub.fetchMessages({ channels });
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [ { type: 'text', text: `Error fetching messages: ${err}` } ],
+        isError: true,
+      };
+    }
+  }
+);
 
 // Tool: "get_pubnub_presence" (fetch presence information for PubNub channels and channel groups)
 server.tool(

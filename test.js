@@ -16,7 +16,7 @@ async function main() {
   const toolNames = tools.map((tool) => tool.name);
   const expectedTools = [
     'read_pubnub_sdk_docs',
-    'pubnub_resources',
+    'read_pubnub_resources',
     'publish_pubnub_message',
     'get_pubnub_messages',
     'get_pubnub_presence',
@@ -29,16 +29,28 @@ async function main() {
   }
   console.log('All expected tools are present.');
 
-  console.log("Testing 'pubnub_resources' tool...");
+  console.log("Testing 'read_pubnub_resources' tool...");
   const pubnubResourcesResult = await client.callTool({
-    name: 'pubnub_resources',
+    name: 'read_pubnub_resources',
     arguments: { document: 'concepts' },
   });
   assert(
     Array.isArray(pubnubResourcesResult.content) && pubnubResourcesResult.content.length > 0,
-    "'pubnub_resources' tool returned no content."
+    "'read_pubnub_resources' tool returned no content."
   );
-  console.log("'pubnub_resources' tool returned content successfully.");
+  console.log("'read_pubnub_resources' tool returned content successfully.");
+
+  // Test the 'read_pubnub_sdk_docs' tool
+  console.log("Testing 'read_pubnub_sdk_docs' tool...");
+  const sdkDocsResult = await client.callTool({
+    name: 'read_pubnub_sdk_docs',
+    arguments: { language: 'javascript', apiReference: 'configuration' },
+  });
+  assert(
+    Array.isArray(sdkDocsResult.content) && sdkDocsResult.content.length > 0,
+    "'read_pubnub_sdk_docs' tool returned no content."
+  );
+  console.log("'read_pubnub_sdk_docs' tool returned content successfully.");
 
   console.log('All tests passed.');
   process.exit(0);
