@@ -88,6 +88,28 @@ async function main() {
     "'get_pubnub_messages' did not include the test channel."
   );
   console.log("'get_pubnub_messages' tool returned message history successfully.");
+  // Test the 'get_pubnub_presence' tool
+  console.log("Testing 'get_pubnub_presence' tool...");
+  const presenceResult = await client.callTool({
+    name: 'get_pubnub_presence',
+    arguments: { channels: ['test-channel'] },
+  });
+  assert(
+    Array.isArray(presenceResult.content) && presenceResult.content.length > 0,
+    "'get_pubnub_presence' tool returned no content."
+  );
+  const rawPresence = presenceResult.content[0].text;
+  let presence;
+  try {
+    presence = JSON.parse(rawPresence);
+  } catch (err) {
+    assert(false, `Invalid JSON returned by 'get_pubnub_presence': ${err}`);
+  }
+  assert(
+    presence.channels && presence.channels['test-channel'],
+    "'get_pubnub_presence' did not include the test channel."
+  );
+  console.log("'get_pubnub_presence' tool returned presence information successfully.");
 
   console.log('All tests passed.');
   process.exit(0);
