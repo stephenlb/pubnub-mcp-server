@@ -50,10 +50,10 @@ const apiReferences = [
 ];
 server.tool(
   'read_pubnub_sdk_docs',
-  'Fetches PubNub SDK documentation for a given language. Optional API references added.',
+  'Retrieve official PubNub SDK documentation for a specified programming language and optional API reference section. Use this tool to get code examples, usage patterns, and detailed explanations of PubNub SDK features.',
   {
-    language: z.enum(languages).describe('Programming language for PubNub SDK documentation'),
-    apiReference: z.enum(apiReferences).default('configuration').describe('API reference for the SDK documentation'),
+    language: z.enum(languages).describe('Programming language of the PubNub SDK to retrieve documentation for (e.g. javascript, python)'),
+    apiReference: z.enum(apiReferences).default('configuration').describe('API reference section to retrieve (e.g. configuration, publish-and-subscribe; defaults to configuration)'),
   },
   async ({ language, apiReference }) => {
     const sdkURL = `https://www.pubnub.com/docs/sdks/${language}`;
@@ -116,19 +116,19 @@ const pubnubDocsOptions = [
 ];
 server.tool(
   'pubnub_resources',
-  'Fetches additional PubNub documentation from markdown files in the resources directory.',
+  'Access local PubNub documentation stored as markdown files in the "resources" directory. Specify the documentation section to retrieve conceptual guides, feature overviews, integration instructions, scaling advice, security best practices, or troubleshooting tips.',
   {
-    document: z.enum(pubnubDocsOptions).describe('Which PubNub documentation to fetch'),
+    document: z.enum(pubnubDocsOptions).describe('Documentation section to fetch (concepts, features, functions, integration, scale, security, troubleshooting)'),
   },
-  async ({ doc }) => {
+  async ({ document }) => {
     try {
-      const filePath = pathJoin(__dirname, 'resources', `pubnub_${doc}.md`);
+      const filePath = pathJoin(__dirname, 'resources', `pubnub_${document}.md`);
       if (!fs.existsSync(filePath)) {
         return {
           content: [
             {
               type: 'text',
-              text: `Documentation file not found: pubnub_${doc}.md`,
+              text: `Documentation file not found: pubnub_${document}.md`,
             },
           ],
           isError: true,
@@ -148,7 +148,7 @@ server.tool(
         content: [
           {
             type: 'text',
-            text: `Error reading pubnub_docs for '${doc}': ${err.message || err}`,
+          text: `Error reading pubnub documentation for '${document}': ${err.message || err}`,
           },
         ],
         isError: true,
@@ -160,9 +160,9 @@ server.tool(
 // Tool: "get_pubnub_messages" (fetch message history for PubNub channels)
 server.tool(
   'get_pubnub_messages',
-  'Fetch message history for PubNub channels.',
+  'Retrieve historical messages from specified PubNub channels, including message content and metadata. Provide an array of channel names to receive past communication records.',
   {
-    channels: z.array(z.string()).min(1).describe('Array of PubNub channels to fetch messages for'),
+    channels: z.array(z.string()).min(1).describe('List of one or more PubNub channel names (strings) to retrieve historical messages from'),
   },
   async ({ channels }) => {
     try {
@@ -184,10 +184,10 @@ server.tool(
 // Tool: "publish_pubnub_message" (publishes a message to a PubNub channel)
 server.tool(
   'publish_pubnub_message',
-  'Publish a message to a PubNub channel.',
+  'Send a message to a specified PubNub channel. Provide the channel name and message payload; returns a timetoken confirming successful publication.',
   {
-    channel: z.string().describe('PubNub channel to publish to'),
-    message: z.string().describe('Message to publish'),
+    channel: z.string().describe('Name of the PubNub channel (string) to publish the message to'),
+    message: z.string().describe('Message payload as a string'),
   },
   async ({ channel, message }) => {
     try {
@@ -221,10 +221,10 @@ server.tool(
 // Tool: "get_pubnub_presence" (fetch presence information for PubNub channels and channel groups)
 server.tool(
   'get_pubnub_presence',
-  'Fetch presence information for PubNub channels and channel groups.',
+  'Obtain real-time presence data (occupancy, UUIDs, etc.) for specified PubNub channels and channel groups. Useful for monitoring active subscribers and their status.',
   {
-    channels: z.array(z.string()).default([]).describe('Array of PubNub channels for presence query'),
-    channelGroups: z.array(z.string()).default([]).describe('Array of PubNub channel groups for presence query'),
+    channels: z.array(z.string()).default([]).describe('List of channel names (strings) to query presence data for'),
+    channelGroups: z.array(z.string()).default([]).describe('List of channel group names (strings) to query presence data for'),
   },
   async ({ channels, channelGroups }) => {
     try {

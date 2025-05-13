@@ -1,108 +1,50 @@
 #!/usr/bin/env node
-/**
- * test.js
- * A simple MCP client test script for the PubNub MCP server (index.js)
- * using @modelcontextprotocol/sdk client over stdio transport.
- */
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+
+import assert from 'assert';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
 async function main() {
-  const transport = new StdioClientTransport({
-    command: "node",
-    args: ["./index.js"],
-  });
-  const client = new Client({
-    name: "pubnub-mcp-client",
-    version: "1.0.0",
-  });
-
-  console.log("Connecting to MCP server...");
+  console.log('Starting MCP server and client...');
+  const client = new Client({ name: 'test-client', version: '1.0.0' });
+  const transport = new StdioClientTransport({ command: 'node', args: ['index.js'] });
   await client.connect(transport);
-  console.log("Connected.");
+  console.log('Connected to MCP server.');
 
-  // List available prompts
-  const { prompts } = await client.listPrompts();
-  console.log("Available prompts:", prompts.map((p) => p.name).join(", "));
-
-  // List available resources
-  const { resources } = await client.listResources();
-  console.log("Available resources:", resources.map((r) => r.uri).join(", "));
-
-  // List available tools
+  console.log('Listing available tools...');
   const { tools } = await client.listTools();
-  console.log("Available tools:", tools.map((t) => t.name).join(", "));
-
-  // Test prompt: say_hello with default
-  const promptDefault = await client.getPrompt({
-    name: "say_hello",
-    arguments: {},
-  });
-  console.log("say_hello (default):", promptDefault.messages[0].content.text);
-
-  // Test prompt: say_hello with custom name
-  const promptCustom = await client.getPrompt({
-    name: "say_hello",
-    arguments: { name: "Alice" },
-  });
-  console.log("say_hello (Alice):", promptCustom.messages[0].content.text);
-
-  // Test tool: pubnub_docs (static file)
-  console.log("Calling tool: pubnub_docs (functions)");
-  const pubnubDocs = await client.callTool({
-    name: "pubnub_docs",
-    arguments: { doc: "functions" },
-  });
-  if (pubnubDocs.content?.length) {
-    console.log(
-      "pubnub_docs (functions) preview:",
-      pubnubDocs.content[0].text.slice(0, 200),
-      "..."
+  const toolNames = tools.map((tool) => tool.name);
+  const expectedTools = [
+    'read_pubnub_sdk_docs',
+    'pubnub_resources',
+    'publish_pubnub_message',
+    'get_pubnub_messages',
+    'get_pubnub_presence',
+  ];
+  for (const tool of expectedTools) {
+    assert(
+      toolNames.includes(tool),
+      `Missing expected tool: ${tool}. Available tools: ${toolNames.join(', ')}`
     );
   }
+  console.log('All expected tools are present.');
 
-  // Test tool: fetch_pubnub_sdk_docs for JavaScript SDK
-  console.log("Calling tool: fetch_pubnub_sdk_docs (javascript)");
-  const jsDocs = await client.callTool({
-    name: "fetch_pubnub_sdk_docs",
-    arguments: { language: "javascript" },
+  console.log("Testing 'pubnub_resources' tool...");
+  const pubnubResourcesResult = await client.callTool({
+    name: 'pubnub_resources',
+    arguments: { document: 'concepts' },
   });
-  if (jsDocs.content?.length) {
-    console.log(
-      "fetch_pubnub_sdk_docs (javascript) preview:",
-      jsDocs.content[0].text.slice(0, 200),
-      "..."
-    );
-  }
-
-  // Test tool: fetch_pubnub_messages (history API)
-  console.log("Calling tool: fetch_pubnub_messages (history API)");
-  const history = await client.callTool({
-    name: "fetch_pubnub_messages",
-    arguments: { channels: ["test"] },
-  });
-  console.log(
-    "fetch_pubnub_messages result:",
-    history.content ? JSON.stringify(history.content, null, 2) : history
+  assert(
+    Array.isArray(pubnubResourcesResult.content) && pubnubResourcesResult.content.length > 0,
+    "'pubnub_resources' tool returned no content."
   );
+  console.log("'pubnub_resources' tool returned content successfully.");
 
-  // Test tool: fetch_pubnub_presence (hereNow API)
-  console.log("Calling tool: fetch_pubnub_presence (presence API)");
-  const presence = await client.callTool({
-    name: "fetch_pubnub_presence",
-    arguments: { channels: ["test"], channelGroups: [] },
-  });
-  console.log(
-    "fetch_pubnub_presence result:",
-    presence.content ? JSON.stringify(presence.content, null, 2) : presence
-  );
-
-  // Close connection
-  await client.close();
-  console.log("Connection closed.");
+  console.log('All tests passed.');
+  process.exit(0);
 }
 
 main().catch((err) => {
-  console.error("Test script failed:", err);
+  console.error('Test failed:', err);
   process.exit(1);
 });
