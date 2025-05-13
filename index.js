@@ -29,40 +29,82 @@ const server = new McpServer({
   version: '1.0.0',
 });
 
-// 1) Resource: "thank_you_pubnub" (says thank you for using PubNub ❤️)
-server.resource(
-  'thank_you_pubnub',
-  'thank_you_pubnub://thank_you',
-  async (uri) => ({
-    contents: [
-      {
-        uri: uri.href,
-        text: 'Thank you for using PubNub ❤️',
-      },
-    ],
-  })
-);
-
-// 2) Prompt: "say_hello" (says hello to user)
-server.prompt(
-  'say_hello',
+// Tool: "read_pubnub_sdk_docs" (PubNub SDK docs for a given language)
+const languages = [
+    'javascript', 'python', 'java', 'go', 'ruby',
+    'swift', 'objective-c', 'c-sharp', 'php',
+    'rust', 'unity', 'kotlin', 'unreal',
+];
+const apiReferences = [
+    'configuration',
+    'publish-and-subscribe',
+    'presence',
+    'access-manager',
+    'channel-groups',
+    'storage-and-playback',
+    'mobile-push',
+    'objects',
+    'files',
+    'message-actions',
+    'misc',
+];
+server.tool(
+  'read_pubnub_sdk_docs',
+  'Fetches PubNub SDK documentation for a given language. Optional API references added.',
   {
-    name: z.string().default('User'),
+    language: z.enum(languages).describe('Programming language for PubNub SDK documentation'),
+    apiReference: z.enum(apiReferences).default('configuration').describe('API reference for the SDK documentation'),
   },
-  ({ name }) => ({
-    messages: [
-      {
-        role: 'user',
-        content: {
-          type: 'text',
-          text: `Hello, ${name}!`,
-        },
-      },
-    ],
-  })
+  async ({ language, apiReference }) => {
+    const sdkURL = `https://www.pubnub.com/docs/sdks/${language}`;
+    const apiRefURL = `https://www.pubnub.com/docs/sdks/${language}/api-reference/${apiReference}`;
+    const sdkResponse = await loadArticle(sdkURL);
+    const apiRefResponse = await loadArticle(apiRefURL);
+
+    // Combine the content of both responses
+    const combinedContent = sdkResponse.content.concat(apiRefResponse.content);
+    return combinedContent;
+  }
 );
 
-// 3) Tool: "pubnub_docs" (loads PubNub documentation from resources)
+// Utility function that fetches the article content from the PubNub SDK documentation
+async function loadArticle(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `Error fetching ${url}: ${response.status} ${response.statusText}`,
+        },
+      ],
+      isError: true,
+    };
+  }
+
+  let html = await response.text();
+
+  // Remove <script> and <style> tags
+  const dom = new JSDOM(html);
+
+  // Get the <article> content
+  article = dom.window.document.querySelector('article');
+
+  // Convert to Markdown
+  const td = new TurndownService();
+  const markdown = td.turndown(article);
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: markdown,
+      },
+    ],
+  };
+}
+
+// Tool: "pubnub_resources" (fetch PubNub documentation from markdown files in ./resources/ directory)
 const pubnubDocsOptions = [
   'concepts',
   'features',
@@ -73,11 +115,10 @@ const pubnubDocsOptions = [
   'troubleshooting',
 ];
 server.tool(
-  'pubnub_docs',
+  'pubnub_resources',
+  'Fetches additional PubNub documentation from markdown files in the resources directory.',
   {
-    doc: z
-      .enum(pubnubDocsOptions)
-      .describe('Which PubNub documentation to fetch'),
+    document: z.enum(pubnubDocsOptions).describe('Which PubNub documentation to fetch'),
   },
   async ({ doc }) => {
     try {
@@ -116,83 +157,37 @@ server.tool(
   }
 );
 
-// 4) Tool: "fetch_pubnub_sdk_docs" (fetches and processes PubNub SDK docs for a given language)
-const languages = [
-    'javascript', 'python', 'java', 'go', 'ruby',
-    'swift', 'objective-c', 'c-sharp', 'php',
-    'rust', 'unity', 'kotlin', 'unreal'
-];
+// Tool: "get_pubnub_messages" (fetch message history for PubNub channels)
 server.tool(
-  'fetch_pubnub_sdk_docs',
+  'get_pubnub_messages',
+  'Fetch message history for PubNub channels.',
   {
-    language: z.enum(languages),
+    channels: z.array(z.string()).min(1).describe('Array of PubNub channels to fetch messages for'),
   },
-  async ({ language }) => {
-    const url = `https://www.pubnub.com/docs/sdks/${language}`;
+  async ({ channels }) => {
     try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error fetching ${url}: ${response.status} ${response.statusText}`,
-            },
-          ],
-          isError: true,
-        };
-      }
-
-      let html = await response.text();
-
-      // Remove <script> and <style> tags
-      const dom = new JSDOM(html);
-      dom.window.document.querySelectorAll('script').forEach((el) => el.remove());
-      dom.window.document.querySelectorAll('style').forEach((el) => el.remove());
-
-      // Remove header/footer (attempt to remove typical <header> or <footer> tags)
-      dom.window.document.querySelectorAll('header').forEach((el) => el.remove());
-      dom.window.document.querySelectorAll('footer').forEach((el) => el.remove());
-
-      // Get the remaining HTML
-      html = dom.window.document.body.innerHTML;
-
-      // Replace publish/subscribe placeholders
-      html = html.replace(/myPublishKey/g, 'PUBNUB_PUBLISH_KEY');
-      html = html.replace(/mySubscribeKey/g, 'PUBNUB_SUBSCRIBE_KEY');
-
-      // Convert to Markdown
-      const td = new TurndownService();
-      const markdown = td.turndown(html);
-
+      const result = await pubnub.fetchMessages({ channels });
       return {
         content: [
-          {
-            type: 'text',
-            text: markdown,
-          },
+          { type: 'text', text: JSON.stringify(result, null, 2) },
         ],
       };
     } catch (err) {
       return {
-        content: [
-          {
-            type: 'text',
-            text: `Error processing PubNub SDK docs for '${language}': ${err}`,
-          },
-        ],
+        content: [ { type: 'text', text: `Error fetching messages: ${err}` } ],
         isError: true,
       };
     }
   }
 );
 
-// 5) Tool: "publish_pubnub_message" (publishes a message to a PubNub channel)
+// Tool: "publish_pubnub_message" (publishes a message to a PubNub channel)
 server.tool(
   'publish_pubnub_message',
+  'Publish a message to a PubNub channel.',
   {
-    channel: z.string(),
-    message: z.string(),
+    channel: z.string().describe('PubNub channel to publish to'),
+    message: z.string().describe('Message to publish'),
   },
   async ({ channel, message }) => {
     try {
@@ -222,73 +217,11 @@ server.tool(
   }
 );
 
-// 6) Tool: "fetch_pubnub_docs" (fetch PubNub documentation from markdown files in ./resources/ directory)
-server.tool(
-  'fetch_pubnub_docs',
-  {
-    doc: z.string().describe('Name of PubNub documentation to fetch, e.g. "functions", "features", "security", etc.'),
-  },
-  async ({ doc }) => {
-    try {
-      let fileName = doc;
-      // Normalize filename
-      if (fileName.endsWith('.md')) {
-        fileName = fileName.slice(0, -3);
-      }
-      if (!fileName.startsWith('pubnub_')) {
-        fileName = `pubnub_${fileName}`;
-      }
-      const filePath = pathJoin(__dirname, 'resources', `${fileName}.md`);
-      if (!fs.existsSync(filePath)) {
-        return {
-          content: [
-            { type: 'text', text: `Documentation file not found: ${fileName}.md` },
-          ],
-          isError: true,
-        };
-      }
-      const content = fs.readFileSync(filePath, 'utf8');
-      return {
-        content: [
-          { type: 'text', text: content },
-        ],
-      };
-    } catch (err) {
-      return {
-        content: [
-          { type: 'text', text: `Error reading documentation: ${err.message || err}` },
-        ],
-        isError: true,
-      };
-    }
-  }
-);
-// 7) Tool: "fetch_pubnub_messages" (fetch message history for PubNub channels)
-server.tool(
-  'fetch_pubnub_messages',
-  {
-    channels: z.array(z.string()).min(1).describe('Array of PubNub channels to fetch messages for'),
-  },
-  async ({ channels }) => {
-    try {
-      const result = await pubnub.fetchMessages({ channels });
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    } catch (err) {
-      return {
-        content: [ { type: 'text', text: `Error fetching messages: ${err}` } ],
-        isError: true,
-      };
-    }
-  }
-);
 
-// 8) Tool: "fetch_pubnub_presence" (fetch presence information for PubNub channels and channel groups)
+// Tool: "get_pubnub_presence" (fetch presence information for PubNub channels and channel groups)
 server.tool(
-  'fetch_pubnub_presence',
+  'get_pubnub_presence',
+  'Fetch presence information for PubNub channels and channel groups.',
   {
     channels: z.array(z.string()).default([]).describe('Array of PubNub channels for presence query'),
     channelGroups: z.array(z.string()).default([]).describe('Array of PubNub channel groups for presence query'),
