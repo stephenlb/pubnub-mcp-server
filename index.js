@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { fileURLToPath } from 'url';
-import { dirname, join as pathJoin } from 'path';
+import { dirname, join as pathJoin, extname, basename } from 'path';
 import fs from 'fs';
 import PubNub from 'pubnub';
 import TurndownService from 'turndown';
@@ -105,30 +105,38 @@ async function loadArticle(url) {
 }
 
 // Tool: "pubnub_resources" (fetch PubNub documentation from markdown files in ./resources/ directory)
-const pubnubResouceOptions = [
-  'concepts',
-  'features',
-  'functions',
-  'integration',
-  'scale',
-  'security',
-  'troubleshooting',
-];
+// Dynamically generate resource options based on markdown files in the ./resources directory
+const resourcesDir = pathJoin(__dirname, 'resources');
+const pubnubResouceOptions = (() => {
+  try {
+    const files = fs.readdirSync(resourcesDir);
+    return files
+      .filter((file) => fs.statSync(pathJoin(resourcesDir, file)).isFile())
+      .filter((file) => extname(file).toLowerCase() === '.md')
+      // strip 'pubnub_' prefix from filenames for document options
+      .map((file) => basename(file, extname(file)));
+  } catch (err) {
+    console.error(`Error reading resources directory: ${err}`);
+    return [];
+  }
+})();
+console.log('Available PubNub resources:', pubnubResouceOptions);
 server.tool(
   'read_pubnub_resources',
-  'Access PubNub documentation stored as markdown files in the "resources" directory. Specify the documentation section to retrieve conceptual guides, feature overviews, integration instructions, scaling advice, security best practices, or troubleshooting tips.',
+  'Access PubNub "How to" and "resources" documentation stored as markdown files in the "resources" directory. Specify the documentation section to retrieve conceptual guides, feature overviews, integration instructions, scaling advice, security best practices, or troubleshooting tips.',
   {
     document: z.enum(pubnubResouceOptions).describe('Documentation section to fetch (concepts, features, functions, integration, scale, security, troubleshooting)'),
   },
   async ({ document }) => {
     try {
-      const filePath = pathJoin(__dirname, 'resources', `${document}.md`);
+      // prepend 'pubnub_' prefix to locate the markdown file
+      const filePath = pathJoin(__dirname, 'resources', `${document}`);
       if (!fs.existsSync(filePath)) {
         return {
           content: [
             {
               type: 'text',
-              text: `Documentation file not found: ${document}.md`,
+              text: `Documentation file not found: ${document}`,
             },
           ],
           isError: true,
@@ -148,7 +156,7 @@ server.tool(
         content: [
           {
             type: 'text',
-          text: `Error reading pubnub documentation for '${document}': ${err.message || err}`,
+            text: `Error reading pubnub documentation for 'pubnub_${document}.md': ${err.message || err}`,
           },
         ],
         isError: true,
