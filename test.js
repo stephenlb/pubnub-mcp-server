@@ -52,6 +52,43 @@ async function main() {
   );
   console.log("'read_pubnub_sdk_docs' tool returned content successfully.");
 
+  // Test the 'publish_pubnub_message' tool
+  console.log("Testing 'publish_pubnub_message' tool...");
+  const publishResult = await client.callTool({
+    name: 'publish_pubnub_message',
+    arguments: { channel: 'test-channel', message: 'Hello from test!' },
+  });
+  assert(
+    Array.isArray(publishResult.content) &&
+      publishResult.content.length > 0 &&
+      publishResult.content[0].text.includes('Timetoken'),
+    "'publish_pubnub_message' tool did not return a timetoken."
+  );
+  console.log("'publish_pubnub_message' tool published message successfully.");
+  // Test the 'get_pubnub_messages' tool
+  console.log("Testing 'get_pubnub_messages' tool...");
+  const getMessagesResult = await client.callTool({
+    name: 'get_pubnub_messages',
+    arguments: { channels: ['test-channel'] },
+  });
+  assert(
+    Array.isArray(getMessagesResult.content) &&
+      getMessagesResult.content.length > 0,
+    "'get_pubnub_messages' tool returned no content."
+  );
+  const rawHistory = getMessagesResult.content[0].text;
+  let history;
+  try {
+    history = JSON.parse(rawHistory);
+  } catch (err) {
+    assert(false, `Invalid JSON returned by 'get_pubnub_messages': ${err}`);
+  }
+  assert(
+    history.channels && history.channels['test-channel'],
+    "'get_pubnub_messages' did not include the test channel."
+  );
+  console.log("'get_pubnub_messages' tool returned message history successfully.");
+
   console.log('All tests passed.');
   process.exit(0);
 }
