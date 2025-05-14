@@ -249,12 +249,12 @@ server.tool(
 );
 
 // Tool: "write_pubnub_app" Provides a checklist of instructions for creating a PubNub app
-const appTypes = ['default'];//, 'chat', 'pubsub', 'presence', 'storage-and-playback'];
+const appTypes = ['default']; // , 'chat', 'pubsub', 'presence', 'storage-and-playback'];
 server.tool(
   'write_pubnub_app',
   'Provides instructions for creating a PubNub app. Includes a checklist of steps to follow, such as setting up the PubNub account, creating a new app, and configuring the app settings. This tool is useful for developers who are new to PubNub and need guidance on how to get started with building their first app.',
   {
-    appType: z.enum(appOptions).describe('Which PubNub app template to load'),
+    appType: z.enum(appTypes).describe('Which PubNub app template to load'),
   },
   async ({ offer }) => {
     try {

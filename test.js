@@ -110,6 +110,17 @@ async function main() {
     "'get_pubnub_presence' did not include the test channel."
   );
   console.log("'get_pubnub_presence' tool returned presence information successfully.");
+  // Test the 'write_pubnub_app' tool
+  console.log("Testing 'write_pubnub_app' tool...");
+  const writeAppResult = await client.callTool({
+    name: 'write_pubnub_app',
+    arguments: { appType: 'default' },
+  });
+  assert(
+    Array.isArray(writeAppResult.content) && writeAppResult.content.length > 0,
+    "'write_pubnub_app' tool returned no content."
+  );
+  console.log("'write_pubnub_app' tool returned content successfully.");
 
   console.log('All tests passed.');
   process.exit(0);
