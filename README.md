@@ -1,3 +1,5 @@
+![MCP Server Logo](./context/pubnub-mcp-server-model-context-protocol.jpg)
+
 # PubNub Model Context Protocol (MCP) Server for Cursor IDE
 
 This repository provides a CLI-based Model Context Protocol (MCP) server that exposes PubNub SDK documentation and PubNub Functions resources to LLM-powered tools.
