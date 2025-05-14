@@ -201,26 +201,15 @@ Once the server is running (or using a one-off invocation), send requests by pip
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \
   | node index.js
 
-# 2) Fetch PubNub JavaScript SDK documentation
+# 2) Read PubNub JavaScript SDK documentation
 echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":
-  {"name":"fetch_pubnub_sdk_docs","arguments":{"language":"javascript"}}}' \
+  {"name":"read_pubnub_sdk_docs","arguments":{"language":"javascript"}}}' \
   | node index.js
 
-# 3) Load PubNub Functions docs (static Markdown)
-echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":
-  {"name":"pubnub_functions_docs","arguments":{}}}' \
+# 3) Read PubNub Functions Resource docs (static Markdown)
+echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"read_pubnub_resources","arguments":{"document":"pubnub_functions"}}}' \
   | node index.js
 
-# 4) Publish a message to a channel
-echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":
-  {"name":"publish_pubnub_message","arguments":
-    {"channel":"my_channel","message":"Hello, PubNub!"}}}' \
-  | node index.js
-
-# 5) Read a static resource
-echo '{"jsonrpc":"2.0","id":5,"method":"resources/read","params":
-  {"uri":"thank_you_pubnub://thank_you"}}' \
-  | node index.js
 ```
 
 ## Quick JSON-RPC Examples
@@ -229,16 +218,13 @@ Below are simplified JSON-RPC v2.0 command-line examples using STDIN/STDOUT to f
 
 ### 1) Fetch PubNub JavaScript SDK documentation
 ```bash
-PUBNUB_SUBSCRIBE_KEY=YOUR_SUBSCRIBE_KEY \
-PUBNUB_PUBLISH_KEY=YOUR_PUBLISH_KEY \
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"fetch_pubnub_sdk_docs","arguments":{"language":"javascript"}}}' \
-  | node index.js
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"read_pubnub_sdk_docs","arguments":{"language":"javascript"}}}' | node index.js
 ```
 
 ### 2) Publish a message to a PubNub channel
 ```bash
-PUBNUB_SUBSCRIBE_KEY=YOUR_SUBSCRIBE_KEY \
-PUBNUB_PUBLISH_KEY=YOUR_PUBLISH_KEY \
+PUBNUB_PUBLISH_KEY=demo \
+PUBNUB_SUBSCRIBE_KEY=demo \
 echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"publish_pubnub_message","arguments":{"channel":"my_channel","message":"Hello, PubNub MCP JSON-RPC!"}}}' \
   | node index.js
 ```
