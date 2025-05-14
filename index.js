@@ -130,13 +130,13 @@ server.tool(
   async ({ document }) => {
     try {
       // prepend 'pubnub_' prefix to locate the markdown file
-      const filePath = pathJoin(__dirname, 'resources', `${document}`);
+      const filePath = pathJoin(__dirname, 'resources', `${document}.md`);
       if (!fs.existsSync(filePath)) {
         return {
           content: [
             {
               type: 'text',
-              text: `Documentation file not found: ${document}`,
+              text: `Documentation file not found: ${document}.md`,
             },
           ],
           isError: true,
@@ -268,7 +268,6 @@ server.tool(
         };
       }
       let content = fs.readFileSync(filePath, 'utf8');
-      content = fillEnvVars(content);
       return {
         content: [{ type: 'text', text: content }],
       };

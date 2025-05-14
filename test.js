@@ -29,10 +29,10 @@ async function main() {
   }
   console.log('All expected tools are present.');
 
-  console.log("Testing 'read_pubnub_resources' tool...");
+  console.log("Testing 'read_pubnub_resources' tool with document 'how_to_write_a_pubnub_app'...");
   const pubnubResourcesResult = await client.callTool({
     name: 'read_pubnub_resources',
-    arguments: { document: 'pubnub_concepts' },
+    arguments: { document: 'how_to_write_a_pubnub_app' },
   });
   assert(
     Array.isArray(pubnubResourcesResult.content) && pubnubResourcesResult.content.length > 0,
