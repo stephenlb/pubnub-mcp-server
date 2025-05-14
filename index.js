@@ -58,28 +58,42 @@ server.tool(
   async ({ language, apiReference }) => {
     const sdkURL = `https://www.pubnub.com/docs/sdks/${language}`;
     const apiRefURL = `https://www.pubnub.com/docs/sdks/${language}/api-reference/${apiReference}`;
+
     const sdkResponse = await loadArticle(sdkURL);
     const apiRefResponse = await loadArticle(apiRefURL);
+    const context7Response = loadLanguageFile(language);
 
     // Combine the content of both responses
-    const combinedContent = sdkResponse.content.concat(apiRefResponse.content);
-    return combinedContent;
+    const combinedContent = [sdkResponse, apiRefResponse, context7Response].join('\n\n');
+
+    // Return the combined content
+    return {
+      content: [
+        {
+          type: 'text',
+          text: combinedContent,
+        },
+      ],
+    };
   }
 );
+
+// Function that loads a file from resources directory
+function loadLanguageFile(file) {
+  try {
+    const content = fs.readFileSync(pathJoin(__dirname, 'resources', 'languages', `${file}.md`), 'utf8');
+    return content;
+  } catch (err) {
+    console.error(`Error loading specific langauge file ${file}: ${err}`);
+    return '';
+  }
+}
 
 // Utility function that fetches the article content from the PubNub SDK documentation
 async function loadArticle(url) {
   const response = await fetch(url);
   if (!response.ok) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: `Error fetching ${url}: ${response.status} ${response.statusText}`,
-        },
-      ],
-      isError: true,
-    };
+    return `Error fetching ${url}: ${response.status} ${response.statusText}`;
   }
 
   let html = await response.text();
@@ -94,14 +108,8 @@ async function loadArticle(url) {
   const td = new TurndownService();
   const markdown = td.turndown(article);
 
-  return {
-    content: [
-      {
-        type: 'text',
-        text: markdown,
-      },
-    ],
-  };
+  return markdown;
+
 }
 
 // Tool: "pubnub_resources" (fetch PubNub documentation from markdown files in ./resources/ directory)
@@ -113,14 +121,12 @@ const pubnubResouceOptions = (() => {
     return files
       .filter((file) => fs.statSync(pathJoin(resourcesDir, file)).isFile())
       .filter((file) => extname(file).toLowerCase() === '.md')
-      // strip 'pubnub_' prefix from filenames for document options
       .map((file) => basename(file, extname(file)));
   } catch (err) {
     console.error(`Error reading resources directory: ${err}`);
     return [];
   }
 })();
-console.log('Available PubNub resources:', pubnubResouceOptions);
 server.tool(
   'read_pubnub_resources',
   'Access PubNub "How to" and "resources" documentation stored as markdown files in the "resources" directory. Specify the documentation section to retrieve conceptual guides, feature overviews, integration instructions, scaling advice, security best practices, or troubleshooting tips.',
