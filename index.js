@@ -53,7 +53,7 @@ server.tool(
   'Retrieve official PubNub SDK documentation for a specified programming language and optional API reference section. Use this tool to get code examples, usage patterns, and detailed explanations of PubNub SDK features.',
   {
     language: z.enum(languages).describe('Programming language of the PubNub SDK to retrieve documentation for (e.g. javascript, python)'),
-    apiReference: z.enum(apiReferences).default('configuration').describe('API reference section to retrieve (e.g. configuration, publish-and-subscribe; defaults to configuration)'),
+    apiReference: z.enum(apiReferences).optional().default('configuration').describe('API reference section to retrieve (e.g. configuration, publish-and-subscribe; defaults to configuration)'),
   },
   async ({ language, apiReference }) => {
     const sdkURL = `https://www.pubnub.com/docs/sdks/${language}`;
@@ -88,7 +88,7 @@ async function loadArticle(url) {
   const dom = new JSDOM(html);
 
   // Get the <article> content
-  article = dom.window.document.querySelector('article');
+  const article = dom.window.document.querySelector('article');
 
   // Convert to Markdown
   const td = new TurndownService();
