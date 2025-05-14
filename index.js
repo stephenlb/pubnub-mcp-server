@@ -248,6 +248,44 @@ server.tool(
   }
 );
 
+// Tool: "write_pubnub_app" Provides a checklist of instructions for creating a PubNub app
+const appTypes = ['default'];//, 'chat', 'pubsub', 'presence', 'storage-and-playback'];
+server.tool(
+  'write_pubnub_app',
+  'Provides instructions for creating a PubNub app. Includes a checklist of steps to follow, such as setting up the PubNub account, creating a new app, and configuring the app settings. This tool is useful for developers who are new to PubNub and need guidance on how to get started with building their first app.',
+  {
+    appType: z.enum(appOptions).describe('Which PubNub app template to load'),
+  },
+  async ({ offer }) => {
+    try {
+      const filePath = pathJoin(__dirname, 'resources', `how_to_write_a_pubnub_app.md`);
+      if (!fs.existsSync(filePath)) {
+        return {
+          content: [
+            { type: 'text', text: `App template not found: ${offer}.md` },
+          ],
+          isError: true,
+        };
+      }
+      let content = fs.readFileSync(filePath, 'utf8');
+      content = fillEnvVars(content);
+      return {
+        content: [{ type: 'text', text: content }],
+      };
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error loading app template '${offer}': ${err.message || err}`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
 // Start the MCP server over stdio
 const transport = new StdioServerTransport();
 server.connect(transport).catch((err) => {
