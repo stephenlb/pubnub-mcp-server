@@ -20,6 +20,7 @@ async function main() {
     'publish_pubnub_message',
     'get_pubnub_messages',
     'get_pubnub_presence',
+    'write_pubnub_app',  // should expose the app creation instructions tool
   ];
   for (const tool of expectedTools) {
     assert(
@@ -171,6 +172,67 @@ async function main() {
   );
   console.log("'get_pubnub_presence' channelGroups returned content successfully.");
 
+  // Invalid argument tests
+  console.log("Testing 'get_pubnub_messages' tool with empty channels (should error)...");
+  try {
+    await client.callTool({
+      name: 'get_pubnub_messages',
+      arguments: { channels: [] },
+    });
+    assert(false, "Expected 'get_pubnub_messages' with empty channels to throw an error.");
+  } catch (err) {
+    assert(
+      err.message.includes('Invalid arguments for tool get_pubnub_messages'),
+      `Unexpected error for empty channels: ${err.message}`
+    );
+  }
+  console.log("'get_pubnub_messages' empty channels error handling works successfully.");
+
+  console.log("Testing 'write_pubnub_app' tool with invalid appType (should error)...");
+  try {
+    await client.callTool({
+      name: 'write_pubnub_app',
+      arguments: { appType: 'chat' },
+    });
+    assert(false, "Expected 'write_pubnub_app' with invalid appType to throw an error.");
+  } catch (err) {
+    assert(
+      err.message.includes('Invalid arguments for tool write_pubnub_app'),
+      `Unexpected error for invalid appType: ${err.message}`
+    );
+  }
+  console.log("'write_pubnub_app' invalid appType error handling works successfully.");
+
+  console.log("Testing 'read_pubnub_sdk_docs' tool with invalid language (should error)...");
+  try {
+    await client.callTool({
+      name: 'read_pubnub_sdk_docs',
+      arguments: { language: 'haskell', apiReference: 'configuration' },
+    });
+    assert(false, "Expected 'read_pubnub_sdk_docs' with invalid language to throw an error.");
+  } catch (err) {
+    assert(
+      err.message.includes('Invalid arguments for tool read_pubnub_sdk_docs'),
+      `Unexpected error for invalid language: ${err.message}`
+    );
+  }
+  console.log("'read_pubnub_sdk_docs' invalid language error handling works successfully.");
+
+  console.log("Testing 'read_pubnub_sdk_docs' tool with missing language (should error)...");
+  try {
+    await client.callTool({
+      name: 'read_pubnub_sdk_docs',
+      arguments: { apiReference: 'configuration' },
+    });
+    assert(false, "Expected 'read_pubnub_sdk_docs' missing language to throw an error.");
+  } catch (err) {
+    assert(
+      err.message.includes('Invalid arguments for tool read_pubnub_sdk_docs'),
+      `Unexpected error for missing language: ${err.message}`
+    );
+  }
+  console.log("'read_pubnub_sdk_docs' missing language error handling works successfully.");
+  
   console.log('All tests passed.');
   process.exit(0);
 }
