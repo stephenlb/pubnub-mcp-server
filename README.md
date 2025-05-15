@@ -2,21 +2,28 @@
 
 # PubNub Model Context Protocol (MCP) Server for Cursor IDE
 
-This repository provides a CLI-based Model Context Protocol (MCP) server that exposes PubNub SDK documentation and PubNub Functions resources to LLM-powered tools.
-By adding this server to Cursor IDE, you can:
-- Fetch formatted PubNub JavaScript, Python, and Java SDK documentation.
-- Access PubNub Functions documentation from a static Markdown file.
+This repository provides a CLI-based Model Context Protocol (MCP) server that exposes PubNub SDK documentation and PubNub API resources to LLM-powered tools.
+This improves the LLM AI Agent's ability to understand and interact with PubNub's SDKs and APIs.
 
 ![With PubNub MCP vs Without](./context/pubnub-mcp-vs-no-mcp.jpg)
 
 ## Example Prompts
 
+- "Write a PubNub app that lets the user watch streaming videos with built-in multi-user chat with PubNub."
+- "Write a PubNub app for on-demand delivery of groceries with a map."
+- "Write a PubNub app that tracks the location of a package in real-time."
+- "Write a PubNub app that shows the weather forecast in real-time."
+- "Write a PubNub app that lets users play multiplayer games with friends."
+- "Write a PubNub app that shows live stock prices and news updates."
+- "Write a PubNub app that lets users create and share playlists with friends."
+- "Show me the PubNub JavaScript SDK documentation for `subscribe()`."
+- "Build a PubNub JavaScript app that subscribes to the `my_channel` channel and logs messages to the console."
 - "Publish a message to the `my_channel` channel with the message `Hello, PubNub!`."
-- "Show me the PubNub JavaScript SDK documentation for `subscribe()`."  
-- "List all available PubNub Functions."  
+- "Show me the PubNub JavaScript SDK documentation for `subscribe()`."
+- "List all available PubNub Functions."
 - "Fetch the Python SDK docs for the `publish()` method."
-- "Fetch the message history for the `test` channel."  
-- "Retrieve presence information (occupancy and UUIDs) for the `test` channel and the `default` channel group."  
+- "Fetch the message history for the `test` channel."
+- "Retrieve presence information (occupancy and UUIDs) for the `test` channel and the `default` channel group."
 
 This requires Node.js (>= 18) and npm (https://nodejs.org/).
 `npx` will automatically fetch and run the latest MCP server.
