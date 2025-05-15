@@ -16,7 +16,6 @@ This improves the LLM AI Agent's ability to understand and interact with PubNub'
 - "Write a PubNub app that lets users play multiplayer games with friends."
 - "Write a PubNub app that shows live stock prices and news updates."
 - "Write a PubNub app that lets users create and share playlists with friends."
-- "Show me the PubNub JavaScript SDK documentation for `subscribe()`."
 - "Build a PubNub JavaScript app that subscribes to the `my_channel` channel and logs messages to the console."
 - "Publish a message to the `my_channel` channel with the message `Hello, PubNub!`."
 - "Show me the PubNub JavaScript SDK documentation for `subscribe()`."
@@ -160,14 +159,14 @@ claude mcp remove pubnub
    - `PUBNUB_PUBLISH_KEY`
 4. Save the configuration.
 
-Claude Desktop may use an old verson of node.
+Claude Desktop may use an old version of node.
 You may need to set the command to the full path of your node installation.
 
 ```shell
 git clone https://github.com/stephenlb/pubnub-mcp-server.git
 ```
 
-MCP server is located in the `index.js` file.:
+MCP server is located in the `index.js` file:
 
 ```json
 {
@@ -190,9 +189,9 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Troubleshooting
 
-- Must be in agents mode to use MCP servers.
+- Must be in agent mode to use MCP servers.
 - Verify Node.js and npm installation.
-- Ensure `server.js` has execute permission.
+- Ensure `index.js` has execute permission.
 - Check that the `command`, `args`, and `env` settings are correct.
 - Review Cursor IDE logs for MCP startup errors.
 
@@ -240,6 +239,3 @@ echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"publish_pu
   | node index.js
 ```
 
-## License
-
-MIT
