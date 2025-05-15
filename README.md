@@ -2,6 +2,8 @@
 
 # PubNub Model Context Protocol (MCP) Server for Cursor IDE
 
+[![smithery badge](https://smithery.ai/badge/@stephenlb/pubnub-mcp-server)](https://smithery.ai/server/@stephenlb/pubnub-mcp-server)
+
 This repository provides a CLI-based Model Context Protocol (MCP) server that exposes PubNub SDK documentation and PubNub API resources to LLM-powered tools.
 This improves the LLM AI Agent's ability to understand and interact with PubNub's SDKs and APIs.
 
@@ -36,6 +38,15 @@ This requires Node.js (>= 18) and npm (https://nodejs.org/).
 
 ## Installation
 
+### Installing via Smithery
+
+To install PubNub MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@stephenlb/pubnub-mcp-server):
+
+```bash
+npx -y @smithery/cli install @stephenlb/pubnub-mcp-server --client claude
+```
+
+### Installing Manually
 The preferred way to run the PubNub MCP server locally or add it to Cursor IDE via npx:
 
 ```bash
