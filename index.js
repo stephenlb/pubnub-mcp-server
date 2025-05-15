@@ -50,7 +50,7 @@ const apiReferences = [
 ];
 server.tool(
   'read_pubnub_sdk_docs',
-  'Retrieve official PubNub SDK documentation for a specified programming language and optional API reference section. Use this tool to get code examples, usage patterns, and detailed explanations of PubNub SDK features.',
+  'Retrieves official PubNub SDK documentation for a given programming language and API reference section. Call this tool whenever you need detailed SDK docs, code examples, or usage patterns. Returns documentation in markdown format.',
   {
     language: z.enum(languages).describe('Programming language of the PubNub SDK to retrieve documentation for (e.g. javascript, python)'),
     apiReference: z.enum(apiReferences).optional().default('configuration').describe('API reference section to retrieve (e.g. configuration, publish-and-subscribe; defaults to configuration)'),
@@ -112,10 +112,10 @@ async function loadArticle(url) {
 
 }
 
-// Tool: "pubnub_resources" (fetch PubNub documentation from markdown files in ./resources/ directory)
-// Dynamically generate resource options based on markdown files in the ./resources directory
+// Tool: "read_pubnub_resources" (fetch PubNub conceptual guides and how-to documentation from markdown files)
+// Dynamically generate available resource names based on markdown files in the resources directory
 const resourcesDir = pathJoin(__dirname, 'resources');
-const pubnubResouceOptions = (() => {
+const pubnubResourceOptions = (() => {
   try {
     const files = fs.readdirSync(resourcesDir);
     return files
@@ -129,13 +129,13 @@ const pubnubResouceOptions = (() => {
 })();
 server.tool(
   'read_pubnub_resources',
-  'Access PubNub "How to" and "resources" documentation stored as markdown files in the "resources" directory. Specify the documentation section to retrieve conceptual guides, feature overviews, integration instructions, scaling advice, security best practices, or troubleshooting tips.',
+  'Retrieves PubNub conceptual guides and how-to documentation from markdown files in the resources directory. Call this tool whenever you need overviews, integration instructions, best practices, or troubleshooting tips for PubNub features. Specify the resource name to retrieve, such as pubnub_concepts, pubnub_features, pubnub_security, how_to_send_receive_json, how_to_encrypt_messages_files, etc.',
   {
-    document: z.enum(pubnubResouceOptions).describe('Documentation section to fetch (concepts, features, functions, integration, scale, security, troubleshooting)'),
+    document: z.enum(pubnubResourceOptions).describe('Resource name to fetch (file name without .md under resources directory, e.g., pubnub_concepts, how_to_send_receive_json, how_to_encrypt_messages_files)'),
   },
   async ({ document }) => {
     try {
-      // prepend 'pubnub_' prefix to locate the markdown file
+      // determine the file path for the requested resource
       const filePath = pathJoin(__dirname, 'resources', `${document}.md`);
       if (!fs.existsSync(filePath)) {
         return {
@@ -174,7 +174,7 @@ server.tool(
 // Tool: "publish_pubnub_message" (publishes a message to a PubNub channel)
 server.tool(
   'publish_pubnub_message',
-  'Send a message to a specified PubNub channel. Provide the channel name and message payload; returns a timetoken confirming successful publication.',
+  'Publishes a message to a specified PubNub channel. Call this tool whenever you need to send data through PubNub. Provide the channel name and message payload. Returns a timetoken confirming successful publication.',
   {
     channel: z.string().describe('Name of the PubNub channel (string) to publish the message to'),
     message: z.string().describe('Message payload as a string'),
@@ -210,7 +210,7 @@ server.tool(
 // Tool: "get_pubnub_messages" (fetch message history for PubNub channels)
 server.tool(
   'get_pubnub_messages',
-  'Retrieve historical messages from specified PubNub channels, including message content and metadata. Provide an array of channel names to receive past communication records.',
+  'Fetches historical messages from one or more PubNub channels. Call this tool whenever you need to access past message history. Provide a list of channel names. Returns message content and metadata in JSON format.',
   {
     channels: z.array(z.string()).min(1).describe('List of one or more PubNub channel names (strings) to retrieve historical messages from'),
   },
@@ -234,7 +234,7 @@ server.tool(
 // Tool: "get_pubnub_presence" (fetch presence information for PubNub channels and channel groups)
 server.tool(
   'get_pubnub_presence',
-  'Obtain real-time presence data (occupancy, UUIDs, etc.) for specified PubNub channels and channel groups. Useful for monitoring active subscribers and their status.',
+  'Retrieves real-time presence information for specified PubNub channels and channel groups. Call this tool when you need to monitor active users, occupancy counts, and subscriber UUIDs. Provide channel names and/or channel group names. Returns presence data in JSON format.',
   {
     channels: z.array(z.string()).default([]).describe('List of channel names (strings) to query presence data for'),
     channelGroups: z.array(z.string()).default([]).describe('List of channel group names (strings) to query presence data for'),
@@ -254,26 +254,27 @@ server.tool(
   }
 );
 
-// Tool: "write_pubnub_app" Provides a checklist of instructions for creating a PubNub app
+// Tool: "write_pubnub_app" (generate instructions for creating a PubNub application)
 const appTypes = ['default']; // , 'chat', 'pubsub', 'presence', 'storage-and-playback'];
 server.tool(
   'write_pubnub_app',
-  'Provides instructions for creating a PubNub app. Includes a checklist of steps to follow, such as setting up the PubNub account, creating a new app, and configuring the app settings. This tool is useful for developers who are new to PubNub and need guidance on how to get started with building their first app.',
+  'Generates step-by-step instructions for creating a PubNub application. Call this tool when you need a checklist of tasks such as setting up your PubNub account, creating a new app, and configuring settings.',
   {
-    appType: z.enum(appTypes).describe('Which PubNub app template to load'),
+    appType: z.enum(appTypes).describe('Which PubNub app template to load (currently only "default")'),
   },
-  async ({ offer }) => {
+  async ({ appType }) => {
     try {
-      const filePath = pathJoin(__dirname, 'resources', `how_to_write_a_pubnub_app.md`);
+      const fileName = appType === 'default' ? 'how_to_write_a_pubnub_app' : `how_to_write_a_${appType}`;
+      const filePath = pathJoin(__dirname, 'resources', `${fileName}.md`);
       if (!fs.existsSync(filePath)) {
         return {
           content: [
-            { type: 'text', text: `App template not found: ${offer}.md` },
+            { type: 'text', text: `App template not found: ${fileName}.md` },
           ],
           isError: true,
         };
       }
-      let content = fs.readFileSync(filePath, 'utf8');
+      const content = fs.readFileSync(filePath, 'utf8');
       return {
         content: [{ type: 'text', text: content }],
       };
@@ -282,7 +283,7 @@ server.tool(
         content: [
           {
             type: 'text',
-            text: `Error loading app template '${offer}': ${err.message || err}`,
+            text: `Error loading app template '${appType}': ${err.message || err}`,
           },
         ],
         isError: true,
