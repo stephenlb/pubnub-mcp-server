@@ -7,6 +7,8 @@ By adding this server to Cursor IDE, you can:
 - Fetch formatted PubNub JavaScript, Python, and Java SDK documentation.
 - Access PubNub Functions documentation from a static Markdown file.
 
+![With PubNub MCP vs Without](./context/pubnub-mcp-vs-no-mcp.jpg)
+
 ## Example Prompts
 
 - "Publish a message to the `my_channel` channel with the message `Hello, PubNub!`."
