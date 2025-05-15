@@ -1,0 +1,31 @@
+# Smithery configuration file: https://smithery.ai/docs/build/project-config
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required: []
+    properties:
+      publishKey:
+        type: string
+        default: demo
+        description: PubNub publish key
+      subscribeKey:
+        type: string
+        default: demo
+        description: PubNub subscribe key
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({
+      command: 'node',
+      args: ['index.js'],
+      env: {
+        PUBNUB_PUBLISH_KEY: config.publishKey,
+        PUBNUB_SUBSCRIBE_KEY: config.subscribeKey
+      }
+    })
+  exampleConfig:
+    publishKey: demo
+    subscribeKey: demo
