@@ -116,6 +116,22 @@ async function main() {
     "'read_pubnub_sdk_docs' default behavior returned no content."
   );
   console.log("'read_pubnub_sdk_docs' default behavior returned content successfully.");
+  // Test the 'read_pubnub_sdk_docs' tool with 'functions' apiReference
+  console.log("Testing 'read_pubnub_sdk_docs' tool with apiReference 'functions'...");
+  const sdkFunctionsResult = await client.callTool({
+    name: 'read_pubnub_sdk_docs',
+    arguments: { language: 'javascript', apiReference: 'functions' },
+  });
+  assert(
+    Array.isArray(sdkFunctionsResult.content) && sdkFunctionsResult.content.length > 0,
+    "'read_pubnub_sdk_docs' tool with 'functions' returned no content."
+  );
+  // Verify that the functions documentation is included
+  assert(
+    sdkFunctionsResult.content[0].text.includes('# PubNub Functions Development Guidelines'),
+    "Expected functions documentation header in 'read_pubnub_sdk_docs' tool output."
+  );
+  console.log("'read_pubnub_sdk_docs' tool with 'functions' returned content successfully.");
 
   console.log("Testing 'read_pubnub_resources' tool with document 'pubnub_concepts'...");
   const conceptsResult = await client.callTool({
