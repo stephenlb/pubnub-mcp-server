@@ -60,19 +60,4 @@ Publish/Subscribe, often abbreviated as Pub/Sub, is the fundamental messaging pa
 *   **Short-Term Cache:** PubNub caches the most recent messages (e.g., last 100, or up to ~20 minutes) in a channel's in-memory buffer. If a client subscribes (or reconnects) within this window and is configured to "catch up" (often the default SDK behavior using timetokens), it will receive these cached messages.
 *   **Message Persistence (Add-on):** If the Message Persistence feature is enabled for your keyset, all messages published to channels are stored for your configured retention period (e.g., 1 day, 30 days, unlimited). Clients can then use the History API to retrieve messages published while they were offline, even for extended periods.
 
-## The PubNub Subscribe Long Poll Mechanism
-
-When using HTTP long polling (one of PubNub's transport options):
-
-1.  A PubNub SDK sends a subscribe request to the PubNub network for specific channels.
-2.  The PubNub server holds this request open (doesn't immediately respond) until:
-    *   A message is published to one of the subscribed channels.
-    *   A presence event occurs.
-    *   A server-side timeout is reached (e.g., after ~310 seconds). This timeout is normal; the client then immediately issues a new long-poll request.
-3.  When an event occurs or the poll times out, the server sends a response containing any messages/events and a new timetoken.
-4.  The client processes the response and uses the new timetoken to make the next long-poll subscribe request.
-
-This continuous cycle ensures that the client maintains a quasi-persistent connection for receiving real-time updates. SDKs manage this loop automatically.
-
-PubNub's Pub/Sub model provides a robust and flexible foundation for a wide variety of real-time applications, from simple chat to complex IoT data streams and collaborative experiences.
 

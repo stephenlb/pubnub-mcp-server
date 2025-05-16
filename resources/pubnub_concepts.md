@@ -150,12 +150,3 @@ In case of any questions, contact us at support@pubnub.com
 Any channel can handle an **unlimited number of messages** that are published to it. However, a channel can only retain a total of **100 messages** for short term retrieval. A channel acts as a FIFO queue (first in, first out) and as new messages are published, old messages are popped off.
 
 ---
-
-## Understanding the PubNub Subscribe Long Poll Mechanism
-
-### What is Subscribe Long Polling?
-
-When a client subscribes to a channel using PubNub, it establishes a long-lived HTTP connection to listen for messages. This process, called **long polling**, works as follows:
-
-1. PubNub SDK sends a request to the PubNub network with a list of channels to subscribe.
-2. The request remains open

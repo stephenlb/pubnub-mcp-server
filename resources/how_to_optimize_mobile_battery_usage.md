@@ -8,7 +8,7 @@ PubNub SDKs and the network employ several strategies by default to be battery-f
 
 1.  **Long-Lived Connections:** Instead of frequent new connections (which are power-intensive), PubNub establishes long-lived, persistent TCP socket connections. These connections can be kept alive for extended periods (e.g., one hour by default for some SDKs) with minimal keep-alive traffic.
 2.  **Efficient Keep-Alives:** To maintain the connection through NATs and firewalls, periodic keep-alive messages (pings) are sent. These are typically infrequent (e.g., every 5 minutes) and very small, minimizing data transfer and radio usage.
-3.  **Automatic Transport Selection:** PubNub SDKs intelligently choose the best available transport protocol (e.g., WebSockets, MQTT, HTTP long polling) for the current network environment. Efficient protocols reduce overhead and data usage.
+3.  **Automatic Transport Selection:** PubNub SDKs intelligently choose the best available transport protocol for the current network environment. Efficient protocols reduce overhead and data usage.
 4.  **Low Bandwidth Overhead:** The PubNub protocol itself is designed to be lightweight, adding minimal overhead to your message data.
 
 ## Developer Tips for Further Battery Savings

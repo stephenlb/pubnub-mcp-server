@@ -1,11 +1,5 @@
 Development and Integration
 
-## What protocol does PubNub use?
-
-PubNub is protocol agnostic or independent. This means PubNub's Data Stream Network will use the best protocol to achieve connectivity through any environment. While protocols like WebSockets can be disrupted by cell tower switching, double NAT environments, or some anti-virus/proxy settings, PubNub auto-switches to the best protocol for the user's environment using client libraries. PubNub has used protocols like WebSockets, MQTT, COMET, BOSH, SPDY, long polling, and is exploring HTTP 2.0 and others. PubNub works in every network environment with low bandwidth overhead and battery usage.
-
-See also: [WebSockets vs REST: Understanding the Difference](#) | [How PubNub Takes WebSockets to the Next Level](#)
-
 ---
 
 ## What are valid channel names?
