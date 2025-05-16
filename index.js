@@ -47,6 +47,8 @@ const apiReferences = [
     'files',
     'message-actions',
     'misc',
+    // Special section for PubNub Functions; loads from local resources/pubnub_functions.md
+    'functions',
 ];
 server.tool(
   'read_pubnub_sdk_docs',
@@ -60,7 +62,20 @@ server.tool(
     const apiRefURL = `https://www.pubnub.com/docs/sdks/${language}/api-reference/${apiReference}`;
 
     const sdkResponse = await loadArticle(sdkURL);
-    const apiRefResponse = await loadArticle(apiRefURL);
+    // Load API reference: fetch remote article or load local functions documentation
+    let apiRefResponse;
+    if (apiReference === 'functions') {
+      try {
+        apiRefResponse = fs.readFileSync(
+          pathJoin(__dirname, 'resources', 'pubnub_functions.md'),
+          'utf8'
+        );
+      } catch (err) {
+        apiRefResponse = `Error loading functions documentation: ${err}`;
+      }
+    } else {
+      apiRefResponse = await loadArticle(apiRefURL);
+    }
     const context7Response = loadLanguageFile(language);
 
     // Combine the content of both responses
