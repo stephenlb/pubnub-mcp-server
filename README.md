@@ -59,8 +59,8 @@ Edit or create `~/.cursor/mcp.json`:
       "command": "npx",
       "args": ["-y", "@pubnub/mcp"],
       "env": {
-        "PUBNUB_SUBSCRIBE_KEY": "YOUR_SUBSCRIBE_KEY",
-        "PUBNUB_PUBLISH_KEY": "YOUR_PUBLISH_KEY"
+        "PUBNUB_PUBLISH_KEY": "YOUR_PUBLISH_KEY",
+        "PUBNUB_SUBSCRIBE_KEY": "YOUR_SUBSCRIBE_KEY"
       }
     }
   }
@@ -78,8 +78,8 @@ In your project directory, create `.cursor/mcp.json`:
       "command": "npx",
       "args": ["-y", "@pubnub/mcp"],
       "env": {
-        "PUBNUB_SUBSCRIBE_KEY": "YOUR_SUBSCRIBE_KEY",
-        "PUBNUB_PUBLISH_KEY": "YOUR_PUBLISH_KEY"
+        "PUBNUB_PUBLISH_KEY": "YOUR_PUBLISH_KEY",
+        "PUBNUB_SUBSCRIBE_KEY": "YOUR_SUBSCRIBE_KEY"
       }
     }
   }
@@ -192,36 +192,30 @@ claude mcp remove pubnub
 
 ## Using Claude Desktop
 
-1. In the **Tools** section, add a new tool named **pubnub**.
-2. Set the **Command** to `npx` and **Arguments** to `["-y", "@pubnub/mcp"]`.
-3. Add environment variables for your PubNub keys:
-   - `PUBNUB_SUBSCRIBE_KEY`
-   - `PUBNUB_PUBLISH_KEY`
-4. Save the configuration.
+If you prefer the Docker-based MCP server in Claude Desktop:
 
-Claude Desktop may use an old version of node.
-You may need to set the command to the full path of your node installation.
+1. Ensure your PubNub keys are exported in your shell:
+   ```bash
+   export PUBNUB_PUBLISH_KEY=your_publish_key
+   export PUBNUB_SUBSCRIBE_KEY=your_subscribe_key
+   ```
+2. In the **Tools** section of Claude Desktop, add a new tool named **pubnub**.
+3. Set the **Command** to `docker`.
+4. Set **Arguments** to:
+   ```json
+   [
+     "run",
+     "-i",
+     "-e",
+     "PUBNUB_PUBLISH_KEY",
+     "-e",
+     "PUBNUB_SUBSCRIBE_KEY",
+     "stephenlb/pubnub-mcp-server"
+   ]
+   ```
+5. Save the configuration.
 
-```shell
-git clone https://github.com/stephenlb/pubnub-mcp-server.git
-```
-
-MCP server is located in the `index.js` file:
-
-```json
-{
-  "mcpServers": {
-    "pubnub": {
-      "command": "/Users/stephen/.nvm/versions/node/v22.14.0/bin/node",
-      "args": ["/Users/stephen/Projects/mcp-pubnub/index.js"],
-      "env": {
-        "PUBNUB_SUBSCRIBE_KEY": "demo",
-        "PUBNUB_PUBLISH_KEY": "demo"
-      }
-    }
-  }
-}
-```
+Claude Desktop will invoke the PubNub MCP server container via Docker.
 
 ## License
 
@@ -240,8 +234,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 You can invoke the MCP server directly over STDIN/STDOUT using JSON-RPC v2.0.
 Ensure your PubNub keys are set in the environment, for example:
 ```bash
-PUBNUB_SUBSCRIBE_KEY=YOUR_SUBSCRIBE_KEY \
 PUBNUB_PUBLISH_KEY=YOUR_PUBLISH_KEY \
+PUBNUB_SUBSCRIBE_KEY=YOUR_SUBSCRIBE_KEY \
   node index.js
 ```
 
