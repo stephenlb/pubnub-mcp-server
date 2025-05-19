@@ -86,6 +86,36 @@ In your project directory, create `.cursor/mcp.json`:
 }
 ```
 
+### Docker-Based Configuration
+
+If you prefer to run the MCP server via Docker, set your PubNub keys as environment variables:
+
+```bash
+export PUBNUB_PUBLISH_KEY=YOUR_PUBLISH_KEY
+export PUBNUB_SUBSCRIBE_KEY=YOUR_SUBSCRIBE_KEY
+```
+
+Then configure your `~/.cursor/mcp.json` (or `.cursor/mcp.json` in your project):
+
+```json
+{
+  "mcpServers": {
+    "pubnub": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "-e",
+        "PUBNUB_PUBLISH_KEY",
+        "-e",
+        "PUBNUB_SUBSCRIBE_KEY",
+        "stephenlb/pubnub-mcp-server"
+      ]
+    }
+  }
+}
+```
+
 - `command` specifies the executable to launch the MCP server.
 - `args` specifies the arguments to pass to the command.
 - `env` sets environment variables for the server process.
