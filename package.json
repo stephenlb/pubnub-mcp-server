@@ -1,6 +1,6 @@
 {
   "name": "@pubnub/mcp",
-  "version": "1.0.41",
+  "version": "1.0.42",
   "type": "module",
   "description": "PubNub Model Context Protocol MCP Server for Cursor and Claude",
   "main": "index.js",
@@ -13,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stephenlb/pubnub-mcp-server.git"
+    "url": "git+https://github.com/pubnub/pubnub-mcp-server.git"
   },
   "keywords": [
     "PubNub",
@@ -24,9 +24,9 @@
   "author": "Stephen Blum",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/stephenlb/pubnub-mcp-server/issues"
+    "url": "https://github.com/pubnub/pubnub-mcp-server/issues"
   },
-  "homepage": "https://github.com/stephenlb/pubnub-mcp-server#readme",
+  "homepage": "https://github.com/pubnub/pubnub-mcp-server#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.2",
     "dotenv": "^16.5.0",
