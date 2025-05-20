@@ -1,11 +1,11 @@
-![MCP Server Logo](./context/pubnub-mcp-server-model-context-protocol.jpg)
+![MCP Server Logo](https://github.com/pubnub/pubnub-mcp-server/raw/main/context/pubnub-mcp-server-model-context-protocol.jpg)
 
 # PubNub Model Context Protocol (MCP) Server for Cursor IDE
 
 This repository provides a CLI-based Model Context Protocol (MCP) server that exposes PubNub SDK documentation and PubNub API resources to LLM-powered tools.
 This improves the LLM AI Agent's ability to understand and interact with PubNub's SDKs and APIs.
 
-![With PubNub MCP vs Without](./context/pubnub-mcp-vs-no-mcp.jpg)
+![With PubNub MCP vs Without](https://github.com/pubnub/pubnub-mcp-server/raw/main/context/pubnub-mcp-vs-no-mcp.jpg)
 
 ## Example Prompts
 
@@ -109,7 +109,7 @@ Then configure your `~/.cursor/mcp.json` (or `.cursor/mcp.json` in your project)
         "PUBNUB_PUBLISH_KEY",
         "-e",
         "PUBNUB_SUBSCRIBE_KEY",
-        "stephenlb/pubnub-mcp-server"
+        "pubnub/pubnub-mcp-server"
       ]
     }
   }
@@ -147,13 +147,13 @@ export PUBNUB_SUBSCRIBE_KEY=your_subscribe_key
 
 # Depending on your machine’s CPU architecture, you may need to specify the target platform.
 # For example:
-#   docker run --platform linux/arm64 -i stephenlb/pubnub-mcp-server
-#   docker run --platform linux/amd64 -i stephenlb/pubnub-mcp-server
+#   docker run --platform linux/arm64 -i pubnub/pubnub-mcp-server
+#   docker run --platform linux/amd64 -i pubnub/pubnub-mcp-server
 
 claude mcp add pubnub -- docker run -i \
   -e PUBNUB_PUBLISH_KEY=$PUBNUB_PUBLISH_KEY \
   -e PUBNUB_SUBSCRIBE_KEY=$PUBNUB_SUBSCRIBE_KEY \
-  stephenlb/pubnub-mcp-server
+  pubnub/pubnub-mcp-server
 ```
 
 And the output will be:
@@ -215,7 +215,7 @@ If you prefer the Docker-based MCP server in Claude Desktop:
      "PUBNUB_PUBLISH_KEY",
      "-e",
      "PUBNUB_SUBSCRIBE_KEY",
-     "stephenlb/pubnub-mcp-server"
+     "pubnub/pubnub-mcp-server"
    ]
    ```
 
@@ -229,7 +229,7 @@ If you prefer the Docker-based MCP server in Claude Desktop:
 >   "-i",
 >   "-e", "PUBNUB_PUBLISH_KEY",
 >   "-e", "PUBNUB_SUBSCRIBE_KEY",
->   "stephenlb/pubnub-mcp-server"
+>   "pubnub/pubnub-mcp-server"
 > ]
 > ```
 5. Save the configuration.

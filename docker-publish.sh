@@ -5,3 +5,4 @@
 docker buildx use multiarch
 docker buildx build --platform linux/arm64,linux/amd64 -t pubnub/pubnub-mcp-server:latest --push .
 #docker buildx build --platform linux/arm64,linux/amd64 -t stephenlb/pubnub-mcp-server:latest --push .
+python3 update_dockerhub_overview.py --username $DOCKERHUB_PUBNUB --password $DOCKERHUB_PUBNUB_PASSWORD
