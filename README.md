@@ -145,6 +145,11 @@ claude mcp add pubnub -e PUBNUB_PUBLISH_KEY=your_publish_key -e PUBNUB_SUBSCRIBE
 export PUBNUB_PUBLISH_KEY=your_publish_key
 export PUBNUB_SUBSCRIBE_KEY=your_subscribe_key
 
+# Depending on your machine’s CPU architecture, you may need to specify the target platform.
+# For example:
+#   docker run --platform linux/arm64 -i stephenlb/pubnub-mcp-server
+#   docker run --platform linux/amd64 -i stephenlb/pubnub-mcp-server
+
 claude mcp add pubnub -- docker run -i \
   -e PUBNUB_PUBLISH_KEY=$PUBNUB_PUBLISH_KEY \
   -e PUBNUB_SUBSCRIBE_KEY=$PUBNUB_SUBSCRIBE_KEY \
@@ -213,6 +218,20 @@ If you prefer the Docker-based MCP server in Claude Desktop:
      "stephenlb/pubnub-mcp-server"
    ]
    ```
+
+> **Note:** On some machines (e.g., Apple Silicon), you may need to specify the Docker platform.
+> Insert `--platform linux/arm64` (or `--platform linux/amd64`) immediately after `"run"` in the Arguments array. For example:
+>
+> ```json
+> [
+>   "run",
+>   "--platform", "linux/arm64",
+>   "-i",
+>   "-e", "PUBNUB_PUBLISH_KEY",
+>   "-e", "PUBNUB_SUBSCRIBE_KEY",
+>   "stephenlb/pubnub-mcp-server"
+> ]
+> ```
 5. Save the configuration.
 
 Claude Desktop will invoke the PubNub MCP server container via Docker.
