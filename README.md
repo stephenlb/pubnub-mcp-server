@@ -7,6 +7,22 @@ This improves the LLM AI Agent's ability to understand and interact with PubNub'
 
 ![With PubNub MCP vs Without](https://github.com/pubnub/pubnub-mcp-server/raw/main/context/pubnub-mcp-vs-no-mcp.jpg)
 
+## Features
+
+- MCP server exposing tools for interacting with PubNub via JSON-RPC over STDIN/STDOUT.
+- Retrieve official PubNub SDK documentation (HTML → Markdown) for:
+  - Languages: JavaScript, Python, Java, Go, Ruby, Swift, Objective-C, C#, PHP, Rust, Unity, Kotlin, Unreal.
+  - API reference sections: configuration, publish-and-subscribe, presence, access-manager, channel-groups, storage-and-playback, mobile-push, objects, files, message-actions, misc, functions.
+- Fetch PubNub conceptual guides and how-to documentation from local markdown files in the `resources` directory (e.g., `pubnub_concepts`, `pubnub_features`, `pubnub_security`, `how_to_send_receive_json`, `how_to_encrypt_messages_files`, etc.).
+- Publish messages to PubNub channels with `publish_pubnub_message`, returning a timetoken.
+- Fetch historical messages from one or more channels with `get_pubnub_messages`, returning message content and metadata in JSON.
+- Retrieve real-time presence information (occupancy counts, subscriber UUIDs) for channels and channel groups with `get_pubnub_presence`.
+- Generate step-by-step instructions for creating a PubNub application, including code snippets for initializing the PubNub SDK in multiple languages using `write_pubnub_app`.
+- Environment variable configuration: supports `PUBNUB_PUBLISH_KEY` and `PUBNUB_SUBSCRIBE_KEY` for authenticating SDK operations.
+- Converts remote HTML articles to Markdown using `jsdom` and `turndown` for consistent documentation formatting.
+- Input validation via Zod schemas for all tool parameters, ensuring robust error handling.
+- Extensible tool definitions leveraging the Model Context Protocol SDK (`@modelcontextprotocol/sdk`) with `McpServer` and `StdioServerTransport`.
+
 ## Example Prompts
 
 - "Write a PubNub app that lets the user watch streaming videos with built-in multi-user chat with PubNub."
