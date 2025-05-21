@@ -399,19 +399,36 @@ Replace 'your-unique-uuid' with a unique identifier for your client instance.
 
 // Online: PubNub server instance for MCP messages
 const pubnubServer = new PubNub({
-  publishKey: process.env.PUBNUB_PUBLISH_KEY || 'demo',
-  subscribeKey: process.env.PUBNUB_SUBSCRIBE_KEY || 'demo',
+  publishKey: 'demo',
+  subscribeKey: 'demo',
   userId: 'pubnub_mcp_server',
 });
 
-// Subscribe to the 'pubnub_mcp_server' channel to receive incoming messages
+// Subscribe to the 'pubnub_mcp_server'
 pubnubServer.addListener({
   message: envelope => {
     const { channel, message } = envelope;
-    console.log(`Received message on ${channel}:`, message);
+    //console.log(`Received message on channel ${channel}:`, message);
   }
 });
 pubnubServer.subscribe({ channels: ['pubnub_mcp_server'] });
+
+// Publish to the 'pubnub_mcp_server' channel
+setTimeout( () => {
+  pubnubServer.publish({
+    channel: 'pubnub_mcp_server',
+    message: {
+      type: 'mcp',
+      data: {
+        name: 'pubnub_mcp_server',
+        version: '1.0.0',
+        description: 'PubNub MCP server instance',
+      },
+    },
+  }).catch((err) => {
+    //console.error('Failed to publish to PubNub MCP server:', err);
+  });
+}, 1000);
 
 // Start the MCP server over stdio
 const transport = new StdioServerTransport();
