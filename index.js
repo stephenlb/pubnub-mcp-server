@@ -397,6 +397,13 @@ Replace 'your-unique-uuid' with a unique identifier for your client instance.
 `;
 }
 
+// Online
+const pubnubServer = new PubNub({
+  publishKey: 'demo',
+  subscribeKey: 'demo',
+  userId: 'pubnub_mcp_server',
+});
+
 // Start the MCP server over stdio
 const transport = new StdioServerTransport();
 server.connect(transport).catch((err) => {
