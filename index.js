@@ -148,17 +148,28 @@ async function loadArticle(url) {
 }
 
 // Tool: "read_pubnub_resources" (fetch PubNub conceptual guides and how-to documentation from markdown files)
-// Dynamically generate available resource names based on markdown files in the resources directory
+// Dynamically generate available resource names based on markdown files in the resources directory and languages subdirectory
 const resourcesDir = pathJoin(__dirname, 'resources');
+const languagesDir = pathJoin(resourcesDir, 'languages');
 const pubnubResourceOptions = (() => {
   try {
+    // Top-level markdown files in resources directory
     const files = fs.readdirSync(resourcesDir);
-    return files
+    const topLevel = files
       .filter((file) => fs.statSync(pathJoin(resourcesDir, file)).isFile())
       .filter((file) => extname(file).toLowerCase() === '.md')
       .map((file) => basename(file, extname(file)));
+    // Markdown files in resources/languages directory
+    let langFiles = [];
+    if (fs.existsSync(languagesDir)) {
+      langFiles = fs.readdirSync(languagesDir)
+        .filter((file) => fs.statSync(pathJoin(languagesDir, file)).isFile())
+        .filter((file) => extname(file).toLowerCase() === '.md')
+        .map((file) => basename(file, extname(file)));
+    }
+    return [...topLevel, ...langFiles];
   } catch (err) {
-    console.error(`Error reading resources directory: ${err}`);
+    console.error(`Error reading resources directories: ${err}`);
     return [];
   }
 })();
@@ -170,18 +181,22 @@ server.tool(
   },
   async ({ document }) => {
     try {
-      // determine the file path for the requested resource
-      const filePath = pathJoin(__dirname, 'resources', `${document}.md`);
+      // determine the file path for the requested resource (top-level or languages)
+      let filePath = pathJoin(resourcesDir, `${document}.md`);
       if (!fs.existsSync(filePath)) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Documentation file not found: ${document}.md`,
-            },
-          ],
-          isError: true,
-        };
+        // fallback to languages directory
+        filePath = pathJoin(languagesDir, `${document}.md`);
+        if (!fs.existsSync(filePath)) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Documentation file not found: ${document}.md`,
+              },
+            ],
+            isError: true,
+          };
+        }
       }
       const content = fs.readFileSync(filePath, 'utf8');
       return {
@@ -197,7 +212,7 @@ server.tool(
         content: [
           {
             type: 'text',
-            text: `Error reading pubnub documentation for 'pubnub_${document}.md': ${err.message || err}`,
+            text: `Error reading pubnub documentation for '${document}.md': ${err.message || err}`,
           },
         ],
         isError: true,

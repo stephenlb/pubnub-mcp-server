@@ -143,6 +143,36 @@ async function main() {
     "'read_pubnub_resources' with 'pubnub_concepts' returned no content."
   );
   console.log("'read_pubnub_resources' returned concepts content successfully.");
+  // Test for chat_sdk resource
+  console.log("Testing 'read_pubnub_resources' tool with document 'chat_sdk'...");
+  const chatSdkResult = await client.callTool({
+    name: 'read_pubnub_resources',
+    arguments: { document: 'chat_sdk' },
+  });
+  assert(
+    Array.isArray(chatSdkResult.content) && chatSdkResult.content.length > 0,
+    "'read_pubnub_resources' with 'chat_sdk' returned no content."
+  );
+  assert(
+    chatSdkResult.content[0].text.includes('Sample chat app'),
+    "Expected 'Sample chat app' in 'chat_sdk' result"
+  );
+  console.log("'read_pubnub_resources' tool with 'chat_sdk' returned content successfully.");
+  // Test for pubnub_chat_sdk resource
+  console.log("Testing 'read_pubnub_resources' tool with document 'pubnub_chat_sdk'...");
+  const pubnubChatSdkResult = await client.callTool({
+    name: 'read_pubnub_resources',
+    arguments: { document: 'pubnub_chat_sdk' },
+  });
+  assert(
+    Array.isArray(pubnubChatSdkResult.content) && pubnubChatSdkResult.content.length > 0,
+    "'read_pubnub_resources' with 'pubnub_chat_sdk' returned no content."
+  );
+  assert(
+    pubnubChatSdkResult.content[0].text.includes('Sample chat app'),
+    "Expected 'Sample chat app' in 'pubnub_chat_sdk' result"
+  );
+  console.log("'read_pubnub_resources' tool with 'pubnub_chat_sdk' returned content successfully.");
 
   // Test error handling for 'read_pubnub_resources' tool with invalid document
   console.log("Testing 'read_pubnub_resources' tool with invalid document...");
