@@ -34,6 +34,7 @@ const languages = [
     'javascript', 'python', 'java', 'go', 'ruby',
     'swift', 'objective-c', 'c-sharp', 'php',
     'rust', 'unity', 'kotlin', 'unreal',
+    'chat_sdk',
 ];
 const apiReferences = [
     'configuration',
