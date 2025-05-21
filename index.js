@@ -58,6 +58,21 @@ server.tool(
     apiReference: z.enum(apiReferences).optional().default('configuration').describe('API reference section to retrieve (e.g. configuration, publish-and-subscribe; defaults to configuration)'),
   },
   async ({ language, apiReference }) => {
+    // Early return for PubNub Functions documentation
+    if (apiReference === 'functions') {
+      try {
+        const functionsDoc = fs.readFileSync(
+          pathJoin(__dirname, 'resources', 'pubnub_functions.md'),
+          'utf8'
+        );
+        return { content: [ { type: 'text', text: functionsDoc } ] };
+      } catch (err) {
+        return {
+          content: [ { type: 'text', text: `Error loading functions documentation: ${err}` } ],
+          isError: true
+        };
+      }
+    }
     const sdkURL = `https://www.pubnub.com/docs/sdks/${language}`;
     const apiRefURL = `https://www.pubnub.com/docs/sdks/${language}/api-reference/${apiReference}`;
 
@@ -79,14 +94,19 @@ server.tool(
     const context7Response = loadLanguageFile(language);
 
     // Combine the content of both responses
-    const combinedContent = [sdkResponse, apiRefResponse, context7Response].join('\n\n');
+    let combinedContent;
+    if (apiReference === 'functions') {
+      combinedContent = [apiRefResponse, context7Response].join('\n\n');
+    } else {
+      combinedContent = [sdkResponse, apiRefResponse, context7Response].join('\n\n');
+    }
 
     // Return the combined content
     return {
       content: [
         {
           type: 'text',
-          text: combinedContent,
+          text: combinedContent + getPubNubInitSDKInstructions(),
         },
       ],
     };
@@ -168,7 +188,7 @@ server.tool(
         content: [
           {
             type: 'text',
-            text: content,
+            text: content + getPubNubInitSDKInstructions(),
           },
         ],
       };
@@ -291,7 +311,7 @@ server.tool(
       }
       const content = fs.readFileSync(filePath, 'utf8');
       return {
-        content: [{ type: 'text', text: content }],
+        content: [{ type: 'text', text: content + getPubNubInitSDKInstructions() }],
       };
     } catch (err) {
       return {
@@ -306,6 +326,60 @@ server.tool(
     }
   }
 );
+
+// Function that returns instructions for creating a PubNub application using the user's API keys
+function getPubNubInitSDKInstructions() {
+  const publishKey = process.env.PUBNUB_PUBLISH_KEY || 'demo';
+  const subscribeKey = process.env.PUBNUB_SUBSCRIBE_KEY || 'demo';
+  return `
+To initialize the PubNub SDK with your API keys, configure your client in the language of your choice:
+
+JavaScript:
+\`\`\`javascript
+import PubNub from 'pubnub';
+
+const pubnub = new PubNub({
+  publishKey: '${publishKey}',
+  subscribeKey: '${subscribeKey}',
+  uuid: 'your-unique-uuid',
+});
+\`\`\`
+
+Python:
+\`\`\`python
+from pubnub.pnconfiguration import PNConfiguration
+from pubnub.pubnub import PubNub
+
+pnconfig = PNConfiguration()
+pnconfig.publish_key = '${publishKey}'
+pnconfig.subscribe_key = '${subscribeKey}'
+pnconfig.uuid = 'your-unique-uuid'
+pubnub = PubNub(pnconfig)
+\`\`\`
+
+Ruby:
+\`\`\`ruby
+require 'pubnub'
+
+pubnub = Pubnub.new(
+  publish_key: '${publishKey}',
+  subscribe_key: '${subscribeKey}',
+  uuid: 'your-unique-uuid'
+)
+\`\`\`
+
+Objective-C:
+\`\`\`objectivec
+#import <PubNub/PubNub.h>
+
+PNConfiguration *configuration = [PNConfiguration configurationWithPublishKey:@"${publishKey}" subscribeKey:@"${subscribeKey}"];
+configuration.uuid = @"your-unique-uuid";
+PubNub *pubnub = [PubNub clientWithConfiguration:configuration];
+\`\`\`
+
+Replace 'your-unique-uuid' with a unique identifier for your client instance.
+`;
+}
 
 // Start the MCP server over stdio
 const transport = new StdioServerTransport();
