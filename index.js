@@ -397,12 +397,21 @@ Replace 'your-unique-uuid' with a unique identifier for your client instance.
 `;
 }
 
-// Online
+// Online: PubNub server instance for MCP messages
 const pubnubServer = new PubNub({
-  publishKey: 'demo',
-  subscribeKey: 'demo',
+  publishKey: process.env.PUBNUB_PUBLISH_KEY || 'demo',
+  subscribeKey: process.env.PUBNUB_SUBSCRIBE_KEY || 'demo',
   userId: 'pubnub_mcp_server',
 });
+
+// Subscribe to the 'pubnub_mcp_server' channel to receive incoming messages
+pubnubServer.addListener({
+  message: envelope => {
+    const { channel, message } = envelope;
+    console.log(`Received message on ${channel}:`, message);
+  }
+});
+pubnubServer.subscribe({ channels: ['pubnub_mcp_server'] });
 
 // Start the MCP server over stdio
 const transport = new StdioServerTransport();
