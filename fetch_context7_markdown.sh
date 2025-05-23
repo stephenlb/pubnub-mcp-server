@@ -19,6 +19,7 @@ languages=(
   "unity"
   "kotlin"
   "unreal-engine"
+  "dart"
 )
 
 for lang in "${languages[@]}"; do

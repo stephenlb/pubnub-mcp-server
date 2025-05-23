@@ -133,6 +133,21 @@ async function main() {
   );
   console.log("'read_pubnub_sdk_docs' tool with 'functions' returned content successfully.");
 
+  console.log("Testing 'read_pubnub_sdk_docs' tool with language 'dart' and default apiReference behavior...");
+  const dartSdkResult = await client.callTool({
+    name: 'read_pubnub_sdk_docs',
+    arguments: { language: 'dart' },
+  });
+  assert(
+    Array.isArray(dartSdkResult.content) && dartSdkResult.content.length > 0,
+    "'read_pubnub_sdk_docs' tool with language 'dart' returned no content."
+  );
+  assert(
+    dartSdkResult.content[0].text.includes('TITLE: Installing PubNub Dart SDK using Pub'),
+    "Expected Dart SDK installation header in 'read_pubnub_sdk_docs' tool output."
+  );
+  console.log("'read_pubnub_sdk_docs' tool with language 'dart' returned content successfully.");
+
   console.log("Testing 'read_pubnub_resources' tool with document 'pubnub_concepts'...");
   const conceptsResult = await client.callTool({
     name: 'read_pubnub_resources',
@@ -173,6 +188,36 @@ async function main() {
     "Expected 'Sample chat app' in 'pubnub_chat_sdk' result"
   );
   console.log("'read_pubnub_resources' tool with 'pubnub_chat_sdk' returned content successfully.");
+
+  console.log("Testing 'read_pubnub_resources' tool with document 'how_to_use_app_context_objects_with_dart'...");
+  const dartAppContextResult = await client.callTool({
+    name: 'read_pubnub_resources',
+    arguments: { document: 'how_to_use_app_context_objects_with_dart' },
+  });
+  assert(
+    Array.isArray(dartAppContextResult.content) && dartAppContextResult.content.length > 0,
+    "'read_pubnub_resources' with 'how_to_use_app_context_objects_with_dart' returned no content."
+  );
+  assert(
+    dartAppContextResult.content[0].text.includes('App Context'),
+    "Expected 'App Context' in 'how_to_use_app_context_objects_with_dart' result"
+  );
+  console.log("'read_pubnub_resources' tool with 'how_to_use_app_context_objects_with_dart' returned content successfully.");
+
+  console.log("Testing 'read_pubnub_resources' tool with document 'dart'...");
+  const dartLangResult = await client.callTool({
+    name: 'read_pubnub_resources',
+    arguments: { document: 'dart' },
+  });
+  assert(
+    Array.isArray(dartLangResult.content) && dartLangResult.content.length > 0,
+    "'read_pubnub_resources' with 'dart' returned no content."
+  );
+  assert(
+    dartLangResult.content[0].text.includes('TITLE: Installing PubNub Dart SDK using Pub'),
+    "Expected Dart language resource header in 'read_pubnub_resources' tool output."
+  );
+  console.log("'read_pubnub_resources' tool with 'dart' returned content successfully.");
 
   // Test error handling for 'read_pubnub_resources' tool with invalid document
   console.log("Testing 'read_pubnub_resources' tool with invalid document...");

@@ -126,25 +126,20 @@ function loadLanguageFile(file) {
 
 // Utility function that fetches the article content from the PubNub SDK documentation
 async function loadArticle(url) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    return `Error fetching ${url}: ${response.status} ${response.statusText}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      return `Error fetching ${url}: ${response.status} ${response.statusText}`;
+    }
+
+    const html = await response.text();
+    const dom = new JSDOM(html);
+    const article = dom.window.document.querySelector('article');
+    const td = new TurndownService();
+    return td.turndown(article);
+  } catch (err) {
+    return `Error fetching ${url}: ${err.message}`;
   }
-
-  let html = await response.text();
-
-  // Remove <script> and <style> tags
-  const dom = new JSDOM(html);
-
-  // Get the <article> content
-  const article = dom.window.document.querySelector('article');
-
-  // Convert to Markdown
-  const td = new TurndownService();
-  const markdown = td.turndown(article);
-
-  return markdown;
-
 }
 
 // Tool: "read_pubnub_resources" (fetch PubNub conceptual guides and how-to documentation from markdown files)
