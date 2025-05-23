@@ -32,9 +32,8 @@ const server = new McpServer({
 // Tool: "read_pubnub_sdk_docs" (PubNub SDK docs for a given language)
 const languages = [
     'javascript', 'python', 'java', 'go', 'ruby',
-    'swift', 'objective-c', 'c-sharp', 'php',
-    'rust', 'unity', 'kotlin', 'unreal',
-    'chat_sdk',
+    'swift', 'objective-c', 'c-sharp', 'php', 'dart',
+    'rust', 'unity', 'kotlin', 'unreal', 'chat_sdk',
 ];
 const apiReferences = [
     'configuration',
